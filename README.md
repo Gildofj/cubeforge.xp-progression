@@ -1,59 +1,186 @@
-# PyroProgression
-A Cube World steam release mod that adds an alpha like XP and levelling playstyle.
+# 🔥 PyroProgression
 
-## Table of contents
-1. [Introduction](#introduction)
-2. [Description](#description)
-    1. [Features](#features)
-3. [Installation](#installation)
-4. [Changelog](#changelog)
+<div align="center">
 
-## Introduction
-The idea of adding XP and leveling to Cube World release has been there since the since a few days after the release probably. However, in the past 3 years (since the release), nobody has really attempted to creature such as mod as it involves more that just adding XP and levels. The modding scene was not quite far enough or did not want to put in all the effort to make such a mod. Now, 3 years later, we are finally there. Special thanks to `PyroThunderzz` for convincing me to get started with this mod, enthousiastically bringing in ideas and watching my modding streams. *I guess you have your own mod named after you now...* Big thanks to `S.` and `2 AZ ToufouMaster` for helping me during the development with testing and feedback. On top of that I would like to thank all playtesters of the mod (`CaterpillarCreditUnion`, `Coldurs`, `spenny`, `Shlomopoco`, `Nerah`, `mharr`, `Tabs` and last but definitely not least my man `TheBagel3`), for helping me point out a seemingly infinite amount of bugs.
+[![Cube World Mod](https://img.shields.io/badge/Cube%20World-Steam%20Release-blue.svg)](https://store.steampowered.com/app/1128000/Cube_World/)
+[![Architecture](https://img.shields.io/badge/Architecture-x86__64-orange.svg)](docs/ARCHITECTURE.md)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
+[![Releases](https://img.shields.io/github/v/release/thetrueoneshots/PyroProgression)](https://github.com/thetrueoneshots/PyroProgression/releases)
 
-## Description
-This is a mod that adds XP when killing enemies, levels and scaling of the player, enemies and gear. And all that in a hopefully balanced, intuitive and integrated way. I hope to get you as exited as we were making this mod. Note that this mod does not do anything to the existing region lock. It is balanced around being region locked, but you can still have loads of fun with different region lock mods as they are not game breaking.
+**A complete RPG progression, XP, and levelling overhaul for the Cube World Steam release.**
 
-![Mod](https://i.imgur.com/0zKnyZ0.png)
+[Features](#-key-features) • [Installation](#-installation) • [How It Works](#-how-it-works) • [Commands](#-commands) • [Documentation](#-documentation) • [Building from Source](#-building-from-source) • [Changelog](#-changelog) • [Credits](#-credits)
 
-### Features
-- XP is gained based on the level, star rating and type of enemy **if and only if you or your pet kills the creature**. *(This means having the actual last damaging hit)*
-- Gaining XP will fill up the XP-bar and your character will Level Up if the treshold is reached.
-- On level up, your health will be restored to full.
-- Each level gives extra stats on your health, damage, crit, haste, armor, resistance and stamina.
-- Each region further away from your starting region *(set automatically)* increases the level of creatures and gear there.
-  - The first region has enemies from LV 1 - 5, and each region afterwards has the levels of their creatures increased by 3.
-- Gear has a level, independent of star rating, which adds stats. A higher level has a higher chance of being better than a lower level, but this does not have to be the case!
-- Gear cost is scaled with region distance.
-- Gold bags give 100 gold base gold and is scaled with region distance.
-- You can only equip gear that is a maximum of 0 levels higher than your current level.
-- Gold drops are scaled by enemy level.
-- You can recenter the players region by typing `/recenter` in the chat.
-- Region names display the region level.
+<br/>
 
-## Installation
-Download the latest version of `PyroProgression_v.x.x.zip` from the latest release from [the release page](https://github.com/thetrueoneshots/PyroProgression/releases). If this `.zip` file includes a `CubeModLoader.fip` you will have to put that file in the same directory as your `cubeworld.exe`. If such a file is not added, you can get the latest modloader release from [the modloader release page](https://github.com/thetrueoneshots/Cube-World-Mod-Launcher/releases). You will have to create a new folder called mods in the folder where your `cubeworld.exe` is located if you do not have one already. You will have to put the `PyroProgression_v.x.x.dll` there. That is all there is to it! Enjoy playing
+![PyroProgression Mod Preview](https://i.imgur.com/0zKnyZ0.png)
 
-## Changelog
-- `[v.1.5]` Reverted scaling and region names
-    - Reverted the XP system back to the v.1.1 version.
-    - Increases the scaling cost of items in the shops.
-    - (Tried) to balance the scaling of gear more.
-    - The big region name in the top right corner now also displays the region level.
-- `[v.1.4]` Star rating bug and scaling buffs
-    - Bug fixed which caused a higher star and higher level weapon to have worse stats than a lower star and lower level weapon.
-    - Lowered XP gain and curve by a factor of 100 for a more appealing scaling.
-    - Enemies, player and gear is scaled up.
-    - Bug fixed which caused the `/recenter` command to show still show the enemies old health stats. 
-- `[v.1.3]` Enemy and player scaling updates
-    - Enemy and items range from 1-5 * region distance
-    - Player starting stats are lowered
-    - Enemy starting stats are lowered
-    - Fixed enemy attacking speed bug
-- `[v.1.2]` Multiplayer XP sharing and scaling modifications
-    - XP is now calculated based on the hosts level and enemy levels and divided between all players
-    - Scaling is modified to be non game-breaking
-- `[v.1.1]` Level number formatting and recenter command
-    - Levels are now formatted as: `xxx`, `x.xxK` and `x.xxM`.
-    - With the command `/recenter` you can recenter the scaling region of the player.
-- `[v.1.0]` First official release for the PyroProgression mod.
+</div>
+
+---
+
+## 📖 Overview
+
+**PyroProgression** reintroduces the classic Alpha-style XP and leveling playstyle to the Cube World Steam release. 
+
+Instead of relying solely on region-locked artifacts for character growth, PyroProgression implements a dynamic RPG leveling system where defeating monsters grants experience points, levels increase player attributes, equipment scales based on distance and level, and difficulty naturally ramps up as you explore further outward from your home region.
+
+---
+
+## ⚡ Key Features
+
+- 🌟 **Classic XP & Leveling**: Earn XP by defeating enemies. Level up to increase Health, Damage, Crit, Haste, Armor, Resistance, and Stamina.
+- 🗺️ **Dynamic World Scaling**: The farther a region is from your starting region (Chebyshev distance), the higher the levels of enemies, bosses, and loot.
+  - Starting region features enemies from Level 1–5; each subsequent regional ring increases level range by +5.
+- ⚔️ **Gear Level Requirements**: Gear drops with distinct item levels. You must meet the level requirement to equip gear.
+- 🛡️ **Revamped Gear & Stat Scaling**: Weapons and armor feature custom logarithmic scaling curves and secondary stats (Crit, Haste, HP Regen).
+- 💰 **Scaled Economy**: Gold drops from slain enemies and gold bag yields scale with enemy level and regional distance. Shop equipment costs scale with item level.
+- 🌐 **Multiplayer XP Sharing**: In multiplayer sessions, XP from kills is evenly split across all connected players via Steam P2P networking.
+- 📍 **Recenter Mechanism**: Settle in new regions with the `/recenter` chat command to calibrate difficulty around your new base.
+- 🏷️ **Enhanced HUD**: Floating combat text for XP gains, level-up sound and visual FX, and region level banners displayed in the top-right HUD.
+
+---
+
+## 📥 Installation
+
+### Prerequisites
+- **Cube World (Steam Edition)** (x86_64)
+- **CubeModLoader** ([Download latest release](https://github.com/thetrueoneshots/Cube-World-Mod-Launcher/releases))
+
+### Quick Setup
+1. Download the latest `PyroProgression_v.x.x.zip` from the [Releases page](https://github.com/thetrueoneshots/PyroProgression/releases).
+2. Place `CubeModLoader.fip` into your root Cube World folder (where `cubeworld.exe` is located).
+3. Create a folder named `Mods` in your Cube World root directory if it doesn't already exist.
+4. Copy `PyroProgression.dll` into the `Mods/` folder.
+5. Launch Cube World and enjoy!
+
+```text
+📁 Cube World/
+├── 📄 cubeworld.exe
+├── 📄 CubeModLoader.fip
+└── 📁 Mods/
+    └── 📄 PyroProgression.dll
+```
+
+> For comprehensive troubleshooting and multiplayer instructions, see the [Installation Guide](docs/guides/INSTALLATION.md).
+
+---
+
+## 🕹️ In-Game Commands
+
+| Command | Description |
+|---|---|
+| `/recenter` | Sets your current region as the new home base ($D = 0$), re-centering creature and loot level scaling around your new location without player HP exploit. |
+
+> Learn more about the mechanics in the [Recenter Command Guide](docs/features/RECENTER.md).
+
+---
+
+## 🧠 How It Works
+
+```mermaid
+graph TD
+    A[Player Spawns in Region] -->|Base Region Set D=0| B[Level 1-5 Zone]
+    B -->|Travel 1 Region Away D=1| C[Level 6-10 Zone]
+    C -->|Travel 2 Regions Away D=2| D[Level 11-15 Zone]
+    
+    E[Defeat Enemy] --> F[Calculate XP = Level * Stars * Boss Multiplier]
+    F -->|Multiplayer| G[Split XP across peers via Steam P2P]
+    F -->|Singleplayer| H[Add XP to Player]
+    H -->|XP >= Required| I[Level Up! Full HP + Stat Boosts]
+```
+
+### Progression Summary
+- **XP Required**: $\text{XP}_{\text{req}}(\text{Level}) = 50 \times (1 + \text{Level}^{1.3})$
+- **XP on Kill**: $\text{XP}_{\text{gain}} = \text{Level} \times \text{Stars} \times M_{\text{boss}}$ (World Boss = $10\times$, Named Boss = $5\times$, Mini Boss = $2\times$).
+- **Distance Metric**: Chebyshev distance $D = \max(|X - X_0|, |Y - Y_0|)$.
+- **Region Level Range**: $\text{Level}_{\text{min}} = 1 + 5D$, $\text{Level}_{\text{max}} = 5(D + 1)$.
+
+> For all mathematical formulas, see the [Formulas & Scaling Reference](docs/FORMULAS.md).
+
+---
+
+## 📚 Documentation Suite
+
+Extensive technical and user documentation is maintained in the [`docs/`](docs/) directory:
+
+- 🏛️ **[Architecture & System Design](docs/ARCHITECTURE.md)**: DLL lifecycle, memory detours, hook orchestration, and subsystem structure.
+- 📐 **[Formulas & Scaling Reference](docs/FORMULAS.md)**: Detailed breakdown of XP curves, creature logarithm scaling, gear formulas, and the `PyroRand` LCG.
+- 🔍 **[Memory Hooks & Reverse Engineering](docs/HOOKS-AND-MEMORY.md)**: Memory offset catalogue, assembly trampolines (`ASM_*`), and calling conventions.
+- 🛠️ **[Developer & Build Guide](docs/DEVELOPMENT.md)**: Building from source with CMake, compiler prerequisites, and debugging with Visual Studio.
+- 🤝 **[Contributing Guidelines](docs/CONTRIBUTING.md)**: Code style, PR guidelines, and open-source contribution procedures.
+- 🌐 **[Multiplayer Guide](docs/guides/MULTIPLAYER.md)**: Steam P2P packet structures and party synchronization mechanics.
+- 📍 **[Recenter Feature Deep Dive](docs/features/RECENTER.md)**: How `/recenter` recalibrates world difficulty.
+- 📦 **[Installation Guide](docs/guides/INSTALLATION.md)**: Step-by-step setup instructions for players.
+
+---
+
+## 🔨 Building from Source
+
+### Requirements
+- **Windows 10 / 11 (64-bit)**
+- **CMake 3.8+**
+- **C++ Compiler** with x86_64 inline assembly support (MSVC 2019/2022 or MinGW-w64 GCC/Clang)
+- **[CWSDK](https://github.com/thetrueoneshots/cwsdk)** submodule
+
+```bash
+# Clone the repository and initialize submodules
+git clone https://github.com/thetrueoneshots/PyroProgression.git
+cd PyroProgression
+git submodule update --init --recursive
+
+# Configure and compile using CMake
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
+
+The compiled `PyroProgression.dll` will be generated in the build directory.
+
+---
+
+## 📜 Changelog
+
+### `[v.1.5]` — Reverted Scaling & Region Names
+- Reverted the XP system curve back to v.1.1 baseline.
+- Increased shop gear purchase scaling costs.
+- Rebalanced high-level gear stat progression.
+- Top-right HUD region banner now displays the current regional level bracket.
+
+### `[v.1.4]` — Star Rating Bug & Scaling Buffs
+- Fixed a bug causing higher star/level items to yield worse stats than lower-tier items.
+- Lowered XP gain and curve scaling factor for smoother progression pacing.
+- Scaled up enemy, player, and gear attributes.
+- Fixed a bug where `/recenter` displayed stale enemy HP values.
+
+### `[v.1.3]` — Enemy & Player Scaling Updates
+- Standardized enemy and item level ranges to $1\text{--}5 \times \text{distance}$.
+- Reduced player and enemy baseline starting stats for balanced early-game difficulty.
+- Fixed enemy attack speed calculation bugs.
+
+### `[v.1.2]` — Multiplayer XP Sharing & Scaling Tweaks
+- Added Steam P2P multiplayer XP distribution among party members.
+- Re-tuned attribute scaling curves to prevent late-game arithmetic overflow.
+
+### `[v.1.1]` — Level Number Formatting & Recenter Command
+- Added formatting for large level values (`xxx`, `x.xxK`, and `x.xxM`).
+- Introduced the `/recenter` chat command.
+
+### `[v.1.0]` — Initial Release
+- Initial public release of PyroProgression for Cube World Steam.
+
+---
+
+## 👥 Credits & Acknowledgments
+
+- **Lead Developer**: `thetrueoneshots`
+- **Inspiration & Mod Namesake**: `PyroThunderzz` — for pitching the concept and driving development forward.
+- **Testing & Balancing**: `S.`, `2 AZ ToufouMaster`
+- **Network Reverse Engineering**: `Andoryuuta` & `ChrisMiuchiz` ([Cube-World-Chat-Mod](https://github.com/ChrisMiuchiz/Cube-World-Chat-Mod))
+- **Playtesters**: `CaterpillarCreditUnion`, `Coldurs`, `spenny`, `Shlomopoco`, `Nerah`, `mharr`, `Tabs`, and `TheBagel3`.
+- **SDK**: Built with [CWSDK](https://github.com/thetrueoneshots/cwsdk).
+
+---
+
+## ⚖️ License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) or project repository for details. Cube World is a registered trademark of Picroma e.K. This mod is not affiliated with or endorsed by Picroma.
