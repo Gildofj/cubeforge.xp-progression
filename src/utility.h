@@ -1,13 +1,17 @@
 #pragma once
+
 #include "cwsdk.h"
+#include "core/Constants.h"
+#include "core/MathUtils.h"
 
-#define LEVELS_PER_REGION 5
-#define LEVEL_EQUIPMENT_CAP 0
+// Forward compatibility defines
+#define LEVELS_PER_REGION pyro::kLevelsPerRegion
+#define LEVEL_EQUIPMENT_CAP pyro::kLevelEquipmentCap
 
-int GetRegionDistance(IntVector2 region);
-int GetItemLevel(cube::Item* item);
-int GetCreatureLevel(cube::Creature* creature);
-int GetLevelVariation(long long modifier, int range);
+[[nodiscard]] int GetRegionDistance(IntVector2 region);
+[[nodiscard]] int GetItemLevel(cube::Item* item);
+[[nodiscard]] int GetCreatureLevel(cube::Creature* creature);
+[[nodiscard]] int GetLevelVariation(long long modifier, int range);
 void SetEquipmentRegion(cube::Creature* creature, IntVector2 region);
 
-unsigned long long PyroRand(unsigned long long seed);
+[[nodiscard]] unsigned long long PyroRand(unsigned long long seed);

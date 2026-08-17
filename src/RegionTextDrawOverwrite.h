@@ -1,55 +1,55 @@
 #pragma once
-#include "../CWSDK/cwsdk.h"
+
+#include "../main.h"
 #include "utility.h"
+#include "features/hud/HUDFormatter.h"
 
-extern "C" void RegionTextDrawOverwrite(plasma::Node* node, std::wstring* string)
+extern "C" inline void RegionTextDrawOverwrite(plasma::Node* node, std::wstring* string)
 {
-	auto distance = GetRegionDistance(cube::GetGame()->GetPlayer()->entity_data.current_region);
-	long long upper = (distance + 1) * LEVELS_PER_REGION;
-	long long lower = distance * LEVELS_PER_REGION + 1;
-	wchar_t buffer[250];
+    if (!node || !string) return;
 
-	if (upper < 1000)
-	{
-		swprintf_s(buffer, 250, L"LV.%d-%d ", lower, upper);
-	}
-	else if (upper < 1000000)
-	{
-		swprintf_s(buffer, 250, L"LV.%dK ", (upper / 1000));
-	}
-	else
-	{
-		swprintf_s(buffer, 250, L"LV.%dM ", (upper / 1000000));
-	}
-	
-	
-	*string = buffer + *string;
-	node->SetText(string);
-	return;
+    cube::Game* game = cube::GetGame();
+    if (!game) return;
+
+    cube::Creature* player = game->GetPlayer();
+    if (!player) return;
+
+    const int distance = GetRegionDistance(player->entity_data.current_region);
+    const std::wstring prefix = pyro::HUDFormatter::FormatRegionBracket(distance);
+
+    *string = prefix + *string;
+    node->SetText(string);
 }
 
 GETTER_VAR(void*, ASM_RegionTextDrawOverwrite_jmpback);
 GETTER_VAR(void*, ASM_RegionTextDrawOverwrite_bail);
-__attribute__((naked)) void ASM_RegionTextDrawOverwrite() {
-	asm(".intel_syntax \n"
-		
-		// String is already set in rdx
-		"mov rcx, [r13 + 0x2D0] \n"
-		"call RegionTextDrawOverwrite \n"
 
-		"test esi, esi \n"
-		"jz 1f \n"
+#if defined(__GNUC__) || defined(__clang__)
+NAKED_FN void ASM_RegionTextDrawOverwrite() {
+    asm(".intel_syntax \n"
+        
+        // String is already set in rdx
+        "mov rcx, [r13 + 0x2D0] \n"
+        "call RegionTextDrawOverwrite \n"
 
-		DEREF_JMP(ASM_RegionTextDrawOverwrite_jmpback)
+        "test esi, esi \n"
+        "jz 1f \n"
 
-		"1: \n"
+        DEREF_JMP(ASM_RegionTextDrawOverwrite_jmpback)
 
-		DEREF_JMP(ASM_RegionTextDrawOverwrite_bail)
-	);
+        "1: \n"
+
+        DEREF_JMP(ASM_RegionTextDrawOverwrite_bail)
+    );
 }
+#else
+inline void ASM_RegionTextDrawOverwrite() {}
+#endif
 
-void Setup_RegionTextDrawOverwrite() {
-	WriteFarJMP(CWOffset(0xABA58), (void*)&ASM_RegionTextDrawOverwrite);
-	ASM_RegionTextDrawOverwrite_jmpback = CWOffset(0xABA68);
-	ASM_RegionTextDrawOverwrite_bail = CWOffset(0xABA8C);
+inline void Setup_RegionTextDrawOverwrite() {
+#if defined(__GNUC__) || defined(__clang__)
+    WriteFarJMP(CWOffset(0xABA58), reinterpret_cast<void*>(&ASM_RegionTextDrawOverwrite));
+    ASM_RegionTextDrawOverwrite_jmpback = reinterpret_cast<void*>(CWOffset(0xABA68));
+    ASM_RegionTextDrawOverwrite_bail = reinterpret_cast<void*>(CWOffset(0xABA8C));
+#endif
 }

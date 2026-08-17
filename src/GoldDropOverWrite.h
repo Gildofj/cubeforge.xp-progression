@@ -1,61 +1,53 @@
 #pragma once
-#include "../CWSDK/cwsdk.h"
-#include "utility.h"
 
-void SetGoldDropValue(int value)
+#include "../main.h"
+#include "features/drops/DropSystem.h"
+
+extern "C" inline void GetGoldDrops(cube::Creature* creature, float* gold)
 {
-	auto address = 0x2A7602;
-	auto offset = 0x04;
-
-	WriteByte(CWOffset(address + offset), value & 0xFF);
-	WriteByte(CWOffset(address + offset + 1), (value >> 8) & 0xFF);
-	WriteByte(CWOffset(address + offset + 2), (value >> 16) & 0xFF);
-	WriteByte(CWOffset(address + offset + 3), (value >> 24) & 0xFF);
-}
-
-extern "C" void GetGoldDrops(cube::Creature * creature, float* gold)
-{
-	SetGoldDropValue(GetCreatureLevel(creature));
-
-	if (*gold <= 0)
-	{
-		*gold = 1;
-	}
+    pyro::DropSystem::ProcessGoldDrops(creature, gold);
 }
 
 GETTER_VAR(void*, ASM_OverwriteGoldDrops_jmpback);
-__attribute__((naked)) void ASM_OverwriteGoldDrops() {
-	asm(".intel_syntax \n"
-		
-		PUSH_ALL
 
-		// Put result on stack (thanks Chris)
-		"movq rax, xmm10 \n"
-		"push rax \n"
-		"lea rdx, [rsp] \n"
+#if defined(__GNUC__) || defined(__clang__)
+NAKED_FN void ASM_OverwriteGoldDrops() {
+    asm(".intel_syntax \n"
+        
+        PUSH_ALL
 
-		// Call function
-		"mov rcx, rsi \n"
+        // Put result on stack
+        "movq rax, xmm10 \n"
+        "push rax \n"
+        "lea rdx, [rsp] \n"
 
-		PREPARE_STACK
-		"call GetGoldDrops \n"
-		RESTORE_STACK
+        // Call function
+        "mov rcx, rsi \n"
 
-		// Get result
-		"pop rax \n"
-		"movq xmm10, rax \n"
+        PREPARE_STACK
+        "call GetGoldDrops \n"
+        RESTORE_STACK
 
-		POP_ALL
+        // Get result
+        "pop rax \n"
+        "movq xmm10, rax \n"
 
-		// Old code
-		"mov ebx, r12d \n"
-		"cvttss2si r14, xmm11 \n"
+        POP_ALL
 
-		DEREF_JMP(ASM_OverwriteGoldDrops_jmpback)
-	);
+        // Old code
+        "mov ebx, r12d \n"
+        "cvttss2si r14, xmm11 \n"
+
+        DEREF_JMP(ASM_OverwriteGoldDrops_jmpback)
+    );
 }
+#else
+inline void ASM_OverwriteGoldDrops() {}
+#endif
 
-void Setup_OverwriteGoldDrops() {
-	WriteFarJMP(CWOffset(0x2A752C), ASM_OverwriteGoldDrops);
-	ASM_OverwriteGoldDrops_jmpback = CWOffset(0x2A7540);
+inline void Setup_OverwriteGoldDrops() {
+#if defined(__GNUC__) || defined(__clang__)
+    WriteFarJMP(CWOffset(0x2A752C), reinterpret_cast<void*>(&ASM_OverwriteGoldDrops));
+    ASM_OverwriteGoldDrops_jmpback = reinterpret_cast<void*>(CWOffset(0x2A7540));
+#endif
 }

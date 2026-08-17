@@ -1,20 +1,26 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-// All necessary includes for the hooks and main.cpp
 #include <vector>
-#include <wchar.h>
-#include <stdio.h>
-#include <string.h>
+#include <cwchar>
+#include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <sstream>
 #include <map>
 #include <windows.h>
-#include "CWSDK/cwsdk.h"
-#include "src/memory/memory_helper.h"
+#include "cwsdk.h"
 
-//All the assembly defines
-#define no_optimize __attribute__((optimize("O0")))
+// Assembly and compiler portability macros
+#if defined(__GNUC__) || defined(__clang__)
+    #define no_optimize __attribute__((optimize("O0")))
+    #define NAKED_FN __attribute__((naked))
+    #define USED_VAR __attribute__((used))
+#else
+    #define no_optimize
+    #define NAKED_FN
+    #define USED_VAR
+#endif
 
 #define PUSH_ALL "push rax\npush rbx\npush rcx\npush rdx\npush rsi\npush rdi\npush rbp\npush r8\npush r9\npush r10\npush r11\npush r12\npush r13\npush r14\npush r15\n"
 #define POP_ALL "pop r15\npop r14\npop r13\npop r12\npop r11\npop r10\npop r9\npop r8\npop rbp\npop rdi\npop rsi\npop rdx\npop rcx\npop rbx\npop rax\n"
@@ -22,17 +28,22 @@
 #define PREPARE_STACK "mov rax, rsp \n and rsp, 0xFFFFFFFFFFFFFFF0 \n push rax \n sub rsp, 0x28 \n"
 #define RESTORE_STACK "add rsp, 0x28 \n pop rsp \n"
 
-
-// These macros exist because "jmp [var]" or "jmp ds:[var]" and any other variants I have tried do not properly compile
+#if defined(__GNUC__) || defined(__clang__)
 #define GETTER_VAR(vartype, varname)\
-	static __attribute__((used)) vartype varname;\
-	extern "C" vartype Get_##varname(){return varname;}
+    static USED_VAR vartype varname;\
+    extern "C" vartype Get_##varname(){return varname;}
 #define DEREF_JMP(varname)\
-	"sub rsp, 8 \n"\
-	"push rax \n"\
-	"call Get_"#varname" \n"\
-	"mov [rsp+8], rax \n"\
-	"pop rax \n"\
-	"ret \n"
+    "sub rsp, 8 \n"\
+    "push rax \n"\
+    "call Get_"#varname" \n"\
+    "mov [rsp+8], rax \n"\
+    "pop rax \n"\
+    "ret \n"
+#else
+#define GETTER_VAR(vartype, varname)\
+    static vartype varname;\
+    extern "C" inline vartype Get_##varname(){return varname;}
+#define DEREF_JMP(varname) ""
+#endif
 
 #endif // MAIN_H

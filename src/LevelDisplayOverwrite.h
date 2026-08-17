@@ -1,105 +1,91 @@
 #pragma once
-#include "../CWSDK/cwsdk.h"
+
+#include "../main.h"
 #include "utility.h"
+#include "features/hud/HUDFormatter.h"
 
-void PutText(void* unk, wchar_t* buffer)
+inline void PutText(void* unk, wchar_t* buffer)
 {
-	((void (*)(void*, wchar_t*))CWOffset(0x486B0))(unk, buffer);
+    reinterpret_cast<void (*)(void*, wchar_t*)>(CWOffset(0x486B0))(unk, buffer);
 }
 
-extern "C" void OverwriteItemName(cube::Item * item, std::wstring * string)
+extern "C" inline void OverwriteItemName(cube::Item* item, std::wstring* string)
 {
-	if (item->category < 3 || item->category > 9)
-	{
-		return;
-	}
+    if (!item || !string || item->category < 3 || item->category > 9)
+    {
+        return;
+    }
 
-	wchar_t buffer[250];
-	double item_level = GetItemLevel(item);
-
-	if (item_level > 1e6)
-	{
-		swprintf_s(buffer, 250, L"LV %.2fM ", item_level / 1e6);
-	}
-	else if (item_level > 1e3)
-	{
-		swprintf_s(buffer, 250, L"LV %.2fK ", item_level / 1e3);
-	}
-	else
-	{
-		swprintf_s(buffer, 250, L"LV %.0f ", item_level);
-	}
-	*string = buffer + *string;
+    const double item_level = static_cast<double>(GetItemLevel(item));
+    const std::wstring prefix = pyro::HUDFormatter::FormatLevelPrefix(item_level);
+    *string = prefix + *string;
 }
 
-extern "C" void LevelDisplayOverwriteCreature(cube::Creature* creature, void* unk)
+extern "C" inline void LevelDisplayOverwriteCreature(cube::Creature* creature, void* unk)
 {
-	wchar_t buffer[250];
-	double item_level = GetCreatureLevel(creature);
+    if (!creature || !unk) return;
 
-	if (item_level > 1e6)
-	{
-		swprintf_s(buffer, 250, L"LV %.2fM ", item_level / 1e6);
-	}
-	else if (item_level > 1e3)
-	{
-		swprintf_s(buffer, 250, L"LV %.2fK ", item_level / 1e3);
-	}
-	else
-	{
-		swprintf_s(buffer, 250, L"LV %.0f ", item_level);
-	}
-	PutText(unk, buffer);
-	return;
+    const double creature_level = static_cast<double>(GetCreatureLevel(creature));
+    const std::wstring prefix = pyro::HUDFormatter::FormatLevelPrefix(creature_level);
+
+    wchar_t buffer[64];
+    wcsncpy_s(buffer, prefix.c_str(), _TRUNCATE);
+    PutText(unk, buffer);
 }
 
-extern "C" void sub_336F0(void* a1, int a2, int a3)
+extern "C" inline void sub_336F0(void* a1, int a2, int a3)
 {
-	((void (*)(void*, int, int))CWOffset(0x336F0))(a1, a2, a3);
+    reinterpret_cast<void (*)(void*, int, int)>(CWOffset(0x336F0))(a1, a2, a3);
 }
 
 GETTER_VAR(void*, ASM_LevelDisplayOverwrite_jmpback);
-__attribute__((naked)) void ASM_LevelDisplayOverwrite() {
-	asm(".intel_syntax \n"
-		"xor r8d, r8d \n"
-		"mov dl, 0x1 \n"
-		"lea rcx, [rbp + 0x78] \n"
-		"call sub_336F0 \n"
 
-		"lea rdx, [rbp - 0x80] \n"
-		"mov rcx, [r14] \n"
-		"call LevelDisplayOverwriteCreature \n"
+#if defined(__GNUC__) || defined(__clang__)
+NAKED_FN void ASM_LevelDisplayOverwrite() {
+    asm(".intel_syntax \n"
+        "xor r8d, r8d \n"
+        "mov dl, 0x1 \n"
+        "lea rcx, [rbp + 0x78] \n"
+        "call sub_336F0 \n"
 
-		DEREF_JMP(ASM_LevelDisplayOverwrite_jmpback)
-	);
+        "lea rdx, [rbp - 0x80] \n"
+        "mov rcx, [r14] \n"
+        "call LevelDisplayOverwriteCreature \n"
+
+        DEREF_JMP(ASM_LevelDisplayOverwrite_jmpback)
+    );
 }
 
-__attribute__((naked)) void ASM_OverwriteItemName() {
-	asm(".intel_syntax \n"
-		// rdi: item
-		// rsi: wstring
-		"mov rdx, rsi \n"
-		"lea rcx, [rbp + 0x60] \n"
-		"call OverwriteItemName \n"
+NAKED_FN void ASM_OverwriteItemName() {
+    asm(".intel_syntax \n"
+        // rdi: item
+        // rsi: wstring
+        "mov rdx, rsi \n"
+        "lea rcx, [rbp + 0x60] \n"
+        "call OverwriteItemName \n"
 
-		// Old code
-		"mov rax, rsi \n"
-		"mov rcx, [rbp + 0x280] \n"
-		"xor rcx, rsp \n"
-		"mov rbx, [rsp + 0x3C8] \n"
-		"add rsp, 0x390 \n"
-		"pop rdi \n"
-		"pop rsi \n"
-		"pop rbp \n"
-		"retn \n"
-	);
+        // Old code
+        "mov rax, rsi \n"
+        "mov rcx, [rbp + 0x280] \n"
+        "xor rcx, rsp \n"
+        "mov rbx, [rsp + 0x3C8] \n"
+        "add rsp, 0x390 \n"
+        "pop rdi \n"
+        "pop rsi \n"
+        "pop rbp \n"
+        "retn \n"
+    );
 }
+#else
+inline void ASM_LevelDisplayOverwrite() {}
+inline void ASM_OverwriteItemName() {}
+#endif
 
-void Setup_LevelDisplayOverwrite() {
-	WriteFarJMP(CWOffset(0xB1966), (void*)&ASM_LevelDisplayOverwrite);
-	ASM_LevelDisplayOverwrite_jmpback = CWOffset(0xB19AE);
+inline void Setup_LevelDisplayOverwrite() {
+#if defined(__GNUC__) || defined(__clang__)
+    WriteFarJMP(CWOffset(0xB1966), reinterpret_cast<void*>(&ASM_LevelDisplayOverwrite));
+    ASM_LevelDisplayOverwrite_jmpback = reinterpret_cast<void*>(CWOffset(0xB19AE));
 
-	WriteFarJMP(CWOffset(0x16466C), (void*)&ASM_OverwriteItemName);
-
-	//WriteFarJMP(CWOffset(0x109D11), (void*)&ASM_OverwriteItemName);
+    WriteFarJMP(CWOffset(0x16466C), reinterpret_cast<void*>(&ASM_OverwriteItemName));
+#endif
 }
