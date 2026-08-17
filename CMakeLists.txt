@@ -51,6 +51,7 @@ if(BUILD_TESTING)
         ${PYRO_CORE_SOURCES}
     )
     target_link_libraries(pyro_tests PRIVATE CWSDK)
+    target_compile_definitions(pyro_tests PRIVATE MODLOADER CWSDK_NO_GLOBAL_NEW_DELETE)
     target_include_directories(pyro_tests PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/..

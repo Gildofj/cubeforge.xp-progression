@@ -129,12 +129,21 @@ git clone https://github.com/thetrueoneshots/PyroProgression.git
 cd PyroProgression
 git submodule update --init --recursive
 
-# Configure and compile using CMake
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
+# Compilar a DLL com um único comando:
+make
+
+# Ou via PowerShell / Batch:
+.\build.ps1
+# .\build.bat
 ```
 
-The compiled `PyroProgression.dll` will be generated in the build directory.
+A DLL compilada (`PyroProgression.dll`) é automaticamente gerada e copiada para a pasta `dist/`.
+
+#### Comandos Úteis do Makefile:
+- `make` ou `make build` — Compila a DLL em modo Release e copia para `dist/`
+- `make test` — Compila e roda os testes unitários automatizados
+- `make clean` — Limpa os diretórios de compilação (`build/` e `dist/`)
+
 
 ---
 
