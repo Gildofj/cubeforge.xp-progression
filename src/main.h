@@ -1,5 +1,4 @@
-#ifndef MAIN_H
-#define MAIN_H
+#pragma once
 
 #include <vector>
 #include <cwchar>
@@ -28,22 +27,7 @@
 #define PREPARE_STACK "mov rax, rsp \n and rsp, 0xFFFFFFFFFFFFFFF0 \n push rax \n sub rsp, 0x28 \n"
 #define RESTORE_STACK "add rsp, 0x28 \n pop rsp \n"
 
-#if defined(__GNUC__) || defined(__clang__)
 #define GETTER_VAR(vartype, varname)\
-    static USED_VAR vartype varname;\
-    extern "C" vartype Get_##varname(){return varname;}
-#define DEREF_JMP(varname)\
-    "sub rsp, 8 \n"\
-    "push rax \n"\
-    "call Get_"#varname" \n"\
-    "mov [rsp+8], rax \n"\
-    "pop rax \n"\
-    "ret \n"
-#else
-#define GETTER_VAR(vartype, varname)\
-    static vartype varname;\
-    extern "C" inline vartype Get_##varname(){return varname;}
-#define DEREF_JMP(varname) ""
-#endif
+    extern "C" vartype varname = 0;\
+    extern "C" inline vartype Get_##varname(){ return varname; }
 
-#endif // MAIN_H

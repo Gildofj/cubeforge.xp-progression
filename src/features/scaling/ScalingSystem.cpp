@@ -11,11 +11,20 @@ namespace pyro {
     }
 
     float ScalingSystem::CalculateGearScaling(cube::Item* item, cube::Creature* creature, int base) const {
-        if (!item || !creature) return 0.0f;
+        if (!item) return 0.0f;
 
         IntVector2 region;
-        if (creature->entity_data.hostility_type == 0) {
-            region = creature->entity_data.current_region;
+        cube::Game* game = cube::GetGame();
+        cube::Creature* player = game ? game->GetPlayer() : nullptr;
+
+        if (!creature || creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player) {
+            if (creature) {
+                region = creature->entity_data.current_region;
+            } else if (player) {
+                region = player->entity_data.current_region;
+            } else {
+                region = item->region;
+            }
         } else {
             region = item->region;
         }
@@ -32,8 +41,7 @@ namespace pyro {
         constexpr float X = 0.5f;
         float result = std::abs(X + base_res);
 
-        cube::Game* game = cube::GetGame();
-        if (game && creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player) {
+        if (!creature || (creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player)) {
             const float itemLevel = static_cast<float>(GetItemLevel(item));
             result *= std::log2((itemLevel + 3.0f * (effective_rarity + mod_modifier) + 1001.0f) / 1000.0f) * 1000.0f;
         } else {
@@ -44,11 +52,20 @@ namespace pyro {
     }
 
     float ScalingSystem::CalculateOtherStats(cube::Item* item, cube::Creature* creature) const {
-        if (!item || !creature) return 0.0f;
+        if (!item) return 0.0f;
 
         IntVector2 region;
-        if (creature->entity_data.hostility_type == 0) {
-            region = creature->entity_data.current_region;
+        cube::Game* game = cube::GetGame();
+        cube::Creature* player = game ? game->GetPlayer() : nullptr;
+
+        if (!creature || creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player) {
+            if (creature) {
+                region = creature->entity_data.current_region;
+            } else if (player) {
+                region = player->entity_data.current_region;
+            } else {
+                region = item->region;
+            }
         } else {
             region = item->region;
         }
@@ -66,8 +83,7 @@ namespace pyro {
 
         float result = std::pow(X, Y);
 
-        cube::Game* game = cube::GetGame();
-        if (game && creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player) {
+        if (!creature || (creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player)) {
             result *= 0.01f + 0.0016f * static_cast<float>(GetItemLevel(item));
         }
 

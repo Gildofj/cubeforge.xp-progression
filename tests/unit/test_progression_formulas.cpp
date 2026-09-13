@@ -72,21 +72,22 @@ TEST_FUNC(ProgressionFormulas, XPOverwriteFormulaAndGrowth) {
 }
 
 TEST_FUNC(ProgressionFormulas, EquipmentRegionSetter) {
-    cube::Creature dummyCreature;
+    alignas(cube::Creature) uint8_t creatureBuffer[sizeof(cube::Creature)]{};
+    auto* dummyCreature = reinterpret_cast<cube::Creature*>(creatureBuffer);
     IntVector2 targetRegion(42, -99);
 
-    SetEquipmentRegion(&dummyCreature, targetRegion);
+    SetEquipmentRegion(dummyCreature, targetRegion);
 
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.chest.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.hands.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.feet.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.neck.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.pet.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.ring_left.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.ring_right.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.weapon_left.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.weapon_right.region == targetRegion);
-    ASSERT_TRUE(dummyCreature.entity_data.equipment.shoulder.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.chest.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.hands.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.feet.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.neck.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.pet.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.ring_left.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.ring_right.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.weapon_left.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.weapon_right.region == targetRegion);
+    ASSERT_TRUE(dummyCreature->entity_data.equipment.shoulder.region == targetRegion);
 }
 
 TEST_FUNC(ProgressionFormulas, ItemCategoryClassification) {

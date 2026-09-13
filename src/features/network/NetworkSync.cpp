@@ -28,8 +28,9 @@ namespace pyro {
     }
 
     void NetworkSync::PollIncomingPackets(cube::Game* game) {
-        if (!game || !cube::SteamNetworking()) return;
+        if (!game || !cube::SteamNetworking() || !cube::SteamUser()) return;
 
+        const CSteamID mySteamID = cube::SteamUser()->GetSteamID();
         uint32 packetSize = 0;
         while (cube::SteamNetworking()->IsP2PPacketAvailable(&packetSize, kP2PProgressionChannel)) {
             if (packetSize == 0) break;
@@ -39,6 +40,11 @@ namespace pyro {
             uint32 bytesRead = 0;
 
             if (cube::SteamNetworking()->ReadP2PPacket(buffer.data(), packetSize, &bytesRead, &senderSteamID, kP2PProgressionChannel)) {
+                // Ignore packets sent by ourselves if any looped back
+                if (senderSteamID == mySteamID) {
+                    continue;
+                }
+
                 XPSyncPacket packet;
                 if (DeserializeXPPacket(buffer.data(), bytesRead, packet)) {
                     cube::Creature* player = game->GetPlayer();
@@ -47,6 +53,17 @@ namespace pyro {
                         wchar_t msgBuffer[64];
                         swprintf_s(msgBuffer, sizeof(msgBuffer)/sizeof(wchar_t), L"You gain %d xp.\n", packet.xpAmount);
                         game->PrintMessage(msgBuffer, &purple);
+
+                        cube::TextFX xpText = cube::TextFX();
+                        xpText.position = player->entity_data.position;
+                        xpText.animation_length = kTextFXXPGainAnimLength;
+                        xpText.distance_to_fall = kTextFXXPGainDistance;
+                        xpText.color = purple;
+                        xpText.size = kTextFXXPGainSize;
+                        xpText.offset_2d = FloatVector2(-50.0f, -100.0f);
+                        xpText.text = std::wstring(L"+") + std::to_wstring(packet.xpAmount) + std::wstring(L" XP");
+                        xpText.field_60 = 0;
+                        game->textfx_list.push_back(xpText);
 
                         player->entity_data.XP += packet.xpAmount;
                     }
@@ -58,14 +75,24 @@ namespace pyro {
     void NetworkSync::BroadcastXP(cube::Game* game, float totalXPGain) {
         if (!game || !cube::SteamUser() || !cube::SteamNetworking()) return;
 
-        const size_t connectionCount = game->host.connections.size();
-        const bool isHostSession = (cube::SteamUser()->GetSteamID() == game->client.host_steam_id || connectionCount >= 1);
+        const CSteamID mySteamID = cube::SteamUser()->GetSteamID();
 
-        if (isHostSession && connectionCount > 0) {
-            const int xpPerPlayer = static_cast<int>(totalXPGain / static_cast<float>(connectionCount));
+        // Count remote connections only
+        size_t remoteCount = 0;
+        for (const auto& conn : game->host.connections) {
+            if (conn.first != mySteamID) {
+                remoteCount++;
+            }
+        }
+
+        if (remoteCount > 0) {
+            const int xpPerPlayer = static_cast<int>(totalXPGain / static_cast<float>(remoteCount + 1));
             const std::vector<uint8_t> packetData = SerializeXPPacket(xpPerPlayer);
 
             for (const auto& conn : game->host.connections) {
+                if (conn.first == mySteamID) {
+                    continue; // Never send to ourselves
+                }
                 cube::SteamNetworking()->SendP2PPacket(
                     conn.first,
                     packetData.data(),

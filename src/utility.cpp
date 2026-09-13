@@ -14,7 +14,12 @@ int GetRegionDistance(IntVector2 region)
         return 0;
     }
 
-    const IntVector2 base_region = player->entity_data.equipment.unk_item.region;
+    IntVector2 base_region = player->entity_data.equipment.unk_item.region;
+    if (player->entity_data.equipment.unk_item.modifier == 0 || 
+        (base_region == IntVector2(0, 0) && player->entity_data.current_region != IntVector2(0, 0)))
+    {
+        base_region = player->entity_data.current_region;
+    }
     return pyro::CalculateChebyshevDistance(base_region, region);
 }
 

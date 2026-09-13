@@ -5,22 +5,22 @@
 #include <algorithm>
 #include <cmath>
 
-#include "src/core/Constants.h"
-#include "src/core/StatTypes.h"
-#include "src/core/MathUtils.h"
-#include "src/utility.h"
+#include "core/Constants.h"
+#include "core/StatTypes.h"
+#include "core/MathUtils.h"
+#include "utility.h"
 
-#include "src/features/hud/HUDFormatter.h"
-#include "src/features/scaling/ScalingSystem.h"
-#include "src/features/progression/ProgressionSystem.h"
-#include "src/features/network/NetworkSync.h"
-#include "src/features/drops/DropSystem.h"
+#include "features/hud/HUDFormatter.h"
+#include "features/scaling/ScalingSystem.h"
+#include "features/progression/ProgressionSystem.h"
+#include "features/network/NetworkSync.h"
+#include "features/drops/DropSystem.h"
 
-#include "src/XPOverwrite.h"
-#include "src/LevelDisplayOverwrite.h"
-#include "src/GearScalingOverWrite.h"
-#include "src/GoldDropOverWrite.h"
-#include "src/RegionTextDrawOverwrite.h"
+#include "XPOverwrite.h"
+#include "LevelDisplayOverwrite.h"
+#include "GearScalingOverWrite.h"
+#include "GoldDropOverWrite.h"
+#include "RegionTextDrawOverwrite.h"
 
 /* Mod class containing all lifecycle callbacks for PyroProgression.
  */
@@ -30,7 +30,7 @@ private:
 
     void GainXP(cube::Game* game, int xp)
     {
-        if (!game) return;
+        if (!game || xp <= 0) return;
         cube::Creature* player = game->GetPlayer();
         if (!player) return;
 
@@ -173,25 +173,6 @@ public:
         {
             storage->modifier = 1;
             storage->region = entity_data->current_region;
-
-            constexpr int modifier = 0;
-            entity_data->equipment.weapon_right.modifier = modifier;
-            entity_data->equipment.weapon_left.modifier = modifier;
-            entity_data->equipment.chest.modifier = modifier;
-            entity_data->equipment.feet.modifier = modifier;
-            entity_data->equipment.hands.modifier = modifier;
-            entity_data->equipment.neck.modifier = modifier;
-            entity_data->equipment.shoulder.modifier = modifier;
-            entity_data->equipment.ring_left.modifier = modifier;
-            entity_data->equipment.ring_right.modifier = modifier;
-
-            if (player->inventory_tabs.size() > 1)
-            {
-                for (cube::ItemStack& itemstack : player->inventory_tabs.at(0))
-                {
-                    itemstack.item.modifier = modifier;
-                }
-            }
         }
 
         // Poll Steam P2P packets
@@ -200,7 +181,16 @@ public:
 
     // Called for the host only
     virtual void OnCreatureDeath(cube::Game* game, cube::Creature* creature, cube::Creature* attacker) override {
-        if (!game || !creature || !attacker)
+        if (!game || !creature)
+        {
+            return;
+        }
+
+        if (!attacker)
+        {
+            attacker = game->GetPlayer();
+        }
+        if (!attacker)
         {
             return;
         }
@@ -217,11 +207,38 @@ public:
             return;
         }
 
+        // Do not award XP when a player dies
+        if (creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player)
+        {
+            return;
+        }
+
         if (attacker->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player ||
             attacker->entity_data.hostility_type == cube::Creature::EntityBehaviour::Pet)
         {
             const float xp_gain = pyro::ProgressionSystem::CalculateCreatureKillXP(creature);
-            pyro::NetworkSync::BroadcastXP(game, xp_gain);
+            cube::Creature* player = game->GetPlayer();
+            if (player && xp_gain > 0.0f)
+            {
+                size_t connectionCount = 0;
+                if (cube::SteamNetworking() && cube::SteamUser())
+                {
+                    const CSteamID mySteamID = cube::SteamUser()->GetSteamID();
+                    for (const auto& conn : game->host.connections)
+                    {
+                        if (conn.first != mySteamID)
+                        {
+                            connectionCount++;
+                        }
+                    }
+                }
+                const int localXP = (connectionCount > 0)
+                    ? static_cast<int>(xp_gain / static_cast<float>(connectionCount + 1))
+                    : static_cast<int>(xp_gain);
+
+                this->GainXP(game, localXP);
+                pyro::NetworkSync::BroadcastXP(game, xp_gain);
+            }
         }
     }
 

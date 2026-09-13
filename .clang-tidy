@@ -1,0 +1,32 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*
+
+# Disable specific noisy checks
+# - cppcoreguidelines-pro-bounds-pointer-arithmetic: Common in game modding / hooking
+# - cppcoreguidelines-pro-type-reinterpret-cast: Mandatory for memory manipulation and hook trampolines
+# - cppcoreguidelines-pro-type-member-init: Noisy for simple structs
+# - readability-magic-numbers: Frequently used for memory offsets in hooking
+# - readability-identifier-length: Short names are common in math/game APIs
+# - readability-implicit-boolean-conversion: Extremely common in C/Win32 APIs
+# - cppcoreguidelines-pro-type-vararg: Required for logger format functions
+# - modernize-use-nodiscard: Too noisy for standard loader/hook design
+WarningsAsErrors: ''
+HeaderFilterRegex: '^(src|tests)/.*'
+FormatStyle: file
+User: ''
+CheckOptions:
+  - key:             cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value:           'true'
+  - key:             modernize-use-override.IgnoreDestructors
+    value:           'true'
+...

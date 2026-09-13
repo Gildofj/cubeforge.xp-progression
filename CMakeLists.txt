@@ -1,63 +1,119 @@
-cmake_minimum_required (VERSION 3.15)
-project(project_PyroProgression LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.25)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CWSDK/CMakeLists.txt")
-    add_subdirectory(CWSDK)
-elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../CWSDK/CMakeLists.txt")
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../CWSDK" "${CMAKE_CURRENT_BINARY_DIR}/CWSDK")
+if(CMAKE_HOST_WIN32 OR CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    project(PyroProgression VERSION "1.0.0" LANGUAGES C CXX ASM_MASM)
+else()
+    project(PyroProgression VERSION "1.0.0" LANGUAGES C CXX)
 endif()
 
-set(PYRO_CORE_SOURCES
-    "src/utility.cpp"
-    "src/features/hud/HUDFormatter.cpp"
-    "src/features/scaling/ScalingSystem.cpp"
-    "src/features/progression/ProgressionSystem.cpp"
-    "src/features/network/NetworkSync.cpp"
-    "src/features/drops/DropSystem.cpp"
-)
+# Enforce standard-compliant and modern MSVC runtime behavior
+cmake_policy(SET CMP0091 NEW)
 
-add_library (PyroProgression SHARED 
-    "main.cpp" 
-    "src/XPOverwrite.h"  
-    "src/LevelDisplayOverwrite.h" 
-    "src/utility.h" 
-    "src/GearScalingOverWrite.h" 
-    "src/GoldDropOverWrite.h" 
-    "src/RegionTextDrawOverwrite.h"
-    ${PYRO_CORE_SOURCES}
-)
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
-target_link_libraries (PyroProgression LINK_PUBLIC CWSDK)
-target_include_directories (PyroProgression PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
+# Enable compiler cache if available (ccache / sccache)
+find_program(CCACHE_PROGRAM NAMES ccache sccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    message(STATUS "Found compiler cache: ${CCACHE_PROGRAM}")
+endif()
 
-option(BUILD_TESTING "Build PyroProgression test suite" ON)
+# Enable Clang-Tidy integration if requested
+option(ENABLE_CLANG_TIDY "Enable static analysis with Clang-Tidy" OFF)
+if(ENABLE_CLANG_TIDY)
+    find_program(CLANG_TIDY_PROGRAM NAMES clang-tidy)
+    if(CLANG_TIDY_PROGRAM)
+        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_PROGRAM}")
+        message(STATUS "Found Clang-Tidy: ${CLANG_TIDY_PROGRAM}")
+    endif()
+endif()
+
+# Enable Link-Time Optimization (LTO) for Release/RelWithDebInfo builds if supported
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported LANGUAGES CXX)
+if(ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL TRUE)
+endif()
+
+# Create compiler interface target to enforce standards and common options
+add_library(PyroProgression_CompilerFlags INTERFACE)
+add_library(Pyro::CompilerFlags ALIAS PyroProgression_CompilerFlags)
+add_library(CubeForge::CompilerFlags ALIAS PyroProgression_CompilerFlags)
+target_compile_features(PyroProgression_CompilerFlags INTERFACE cxx_std_20 c_std_11)
+
+if(MSVC)
+    target_compile_options(PyroProgression_CompilerFlags INTERFACE 
+        $<$<COMPILE_LANGUAGE:CXX>:
+            /W4          # Stricter warnings (Level 4)
+            /EHsc        # Standard C++ exception handling
+            /utf-8       # Set Source and Executable character sets to UTF-8
+            /permissive- # Strict standards conformance
+            /Zc:__cplusplus # Correct __cplusplus macro
+            /wd4828      # Disable warning on non-representable characters
+            /wd4100      # Suppress unreferenced formal parameter (common in callbacks/hooks)
+            /MP          # Multi-process compilation
+            /Zc:inline   # Remove unreferenced functions or data
+        >
+    )
+    target_compile_definitions(PyroProgression_CompilerFlags INTERFACE
+        _ITERATOR_DEBUG_LEVEL=0
+        _CRT_SECURE_NO_WARNINGS
+        DIRECTINPUT_VERSION=0x0800
+        NOMINMAX
+        WIN32_LEAN_AND_MEAN
+        MODLOADER=1
+        CWSDK_NO_GLOBAL_NEW_DELETE=1
+    )
+else()
+    target_compile_options(PyroProgression_CompilerFlags INTERFACE 
+        $<$<COMPILE_LANGUAGE:CXX>:
+            -Wall 
+            -Wextra 
+            -Wpedantic 
+            -Wno-unused-parameter
+        >
+    )
+endif()
+
+# Temporarily disable Clang-Tidy for external SDK targets
+set(OLD_CMAKE_CXX_CLANG_TIDY ${CMAKE_CXX_CLANG_TIDY})
+set(CMAKE_CXX_CLANG_TIDY "")
+
+# Fetch and configure cubeforge_sdk
+include(FetchContent)
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../cubeforge.sdk/CMakeLists.txt")
+    FetchContent_Declare(
+        cubeforge_sdk
+        SYSTEM
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cubeforge.sdk"
+    )
+else()
+    FetchContent_Declare(
+        cubeforge_sdk
+        SYSTEM
+        GIT_REPOSITORY https://github.com/Gildofj/cubeforge.sdk.git
+        GIT_TAG        master
+        GIT_SHALLOW    TRUE
+    )
+endif()
+FetchContent_MakeAvailable(cubeforge_sdk)
+
+# Restore Clang-Tidy for project targets
+set(CMAKE_CXX_CLANG_TIDY ${OLD_CMAKE_CXX_CLANG_TIDY})
+
+option(BUILD_MOD "Build PyroProgression shared library / mod DLL" ON)
+option(BUILD_TESTING "Build automated unit and regression tests" ON)
+
+# Source subdirectory for mod objects and DLL
+add_subdirectory(src)
 
 if(BUILD_TESTING)
     enable_testing()
-    file(GLOB_RECURSE PYRO_TEST_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h"
-    )
-
-    add_executable(pyro_tests 
-        ${PYRO_TEST_SOURCES}
-        ${PYRO_CORE_SOURCES}
-    )
-    target_link_libraries(pyro_tests PRIVATE CWSDK)
-    target_compile_definitions(pyro_tests PRIVATE MODLOADER CWSDK_NO_GLOBAL_NEW_DELETE)
-    target_include_directories(pyro_tests PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/..
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests
-    )
-
-    add_test(NAME pyro_tests COMMAND pyro_tests)
+    add_subdirectory(tests)
 endif()

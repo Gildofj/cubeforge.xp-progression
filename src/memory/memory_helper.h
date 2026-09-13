@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 #include <cstdint>
-#include "../main.h"
+#include "main.h"
 
 #define CUBE_EXE_NAME "cubeworld.exe"
 
