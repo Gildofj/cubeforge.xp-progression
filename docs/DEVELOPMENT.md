@@ -1,6 +1,6 @@
 # Developer & Build Guide
 
-This guide covers everything needed to set up a development environment, compile **PyroProgression** from source, and debug issues within Cube World.
+This guide covers everything needed to set up a development environment, compile **xp-progression** from source, and debug issues within Cube World.
 
 ---
 
@@ -8,8 +8,8 @@ This guide covers everything needed to set up a development environment, compile
 1. [Prerequisites](#prerequisites)
 2. [Setting Up the Workspace](#setting-up-the-workspace)
 3. [Building the Project](#building-the-project)
-   - [Using Visual Studio (Recommended)](#using-visual-studio-recommended)
-   - [Using CMake CLI](#using-cmake-cli)
+   - [Using PowerShell Build Script (Recommended)](#using-powershell-build-script-recommended)
+   - [Using CMake CLI with Presets](#using-cmake-cli-with-presets)
 4. [Deploying to Game](#deploying-to-game)
 5. [Debugging & Troubleshooting](#debugging--troubleshooting)
 
@@ -18,13 +18,11 @@ This guide covers everything needed to set up a development environment, compile
 ## Prerequisites
 
 - **Windows 10 / 11 (64-bit)**
-- **CMake** (v3.8 or higher)
-- **C++ Compiler Supporting x86_64 and Inline Assembly**:
-  - **MSVC** (Visual Studio 2019 / 2022 with Desktop C++ workload) or **MinGW-w64 (GCC/Clang)**
-  - Note: Code uses `asm(".intel_syntax ...")` and `__attribute__((naked))`, which are supported by GCC/Clang and modern Clang-cl / MSVC toolsets with GNU extensions.
-- **Python 3.x** (optional, for running [`GenerateProjectCMake.py`](file:///d:/Projects/PyroProgression/GenerateProjectCMake.py))
-- **Cube World (Steam Edition)** + [CubeModLoader](https://github.com/thetrueoneshots/Cube-World-Mod-Launcher/releases)
-- **CWSDK (Cube World SDK)**: Submodule / repository providing `cwsdk.h` and shared definitions.
+- **CMake** (v3.25 or higher)
+- **C++ Compiler Supporting C++20 & x86_64 MASM**:
+  - **MSVC** (Visual Studio 2022 with Desktop C++ workload) or **Clang**
+- **Cube World (Steam Edition)** + [CubeForge Loader](https://github.com/Gildofj/cubeforge.loader/releases)
+- **CubeForge SDK (CWSDK)**: Automatically resolved via `FetchContent` or local sibling directory.
 
 ---
 
@@ -32,44 +30,42 @@ This guide covers everything needed to set up a development environment, compile
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/thetrueoneshots/PyroProgression.git
-   cd PyroProgression
+   git clone https://github.com/Gildofj/cubeforge.xp-progression.git
+   cd cubeforge.xp-progression
    ```
 
-2. **Initialize / Populate CWSDK**:
-   Ensure `CWSDK` directory contains the Cube World SDK files:
-   ```bash
-   git submodule update --init --recursive
-   ```
-
-3. **Verify CMakeLists.txt**:
-   The root [`CMakeLists.txt`](file:///d:/Projects/PyroProgression/CMakeLists.txt) links `PyroProgression` against `CWSDK`.
+2. **Verify CMakeLists.txt**:
+   The root [`CMakeLists.txt`](file:///d:/Projects/cubeforge.xp-progression/CMakeLists.txt) links `xp-progression` against `CWSDK`.
 
 ---
 
 ## Building the Project
 
-### Using Visual Studio (Recommended)
+### Using PowerShell Build Script (Recommended)
 
-1. Open the project root folder in **Visual Studio** via `File -> Open -> Folder...`.
-2. Visual Studio will automatically detect [`CMakeSettings.json`](file:///d:/Projects/PyroProgression/CMakeSettings.json) with `x64-Release` and `x64-Debug` configurations.
-3. Select `x64-Release` from the target configuration dropdown.
-4. Go to `Build -> Build All` (`Ctrl + Shift + B`).
-5. Output binary will be generated at:
-   ```text
-   out/build/x64-Release/PyroProgression.dll
-   ```
+```powershell
+# Build entire project (Release)
+.\build.ps1 -Target all -BuildType Release
+
+# Build and run automated test suite
+.\build.ps1 -Target test
+
+# Automatically build and install into Cube World Mods directory
+.\build.ps1 -Target mod -InstallPath "D:\SteamLibrary\steamapps\common\Cube World"
+```
+
+The output DLL is generated in `dist/xp-progression.dll`.
 
 ---
 
-### Using CMake CLI
+### Using CMake CLI with Presets
 
 ```bash
-# Generate build files
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+# Configure debug / release presets
+cmake --preset windows-release
 
 # Compile DLL
-cmake --build build --config Release
+cmake --build --preset windows-release --target xp-progression
 ```
 
 ---
@@ -77,16 +73,16 @@ cmake --build build --config Release
 ## Deploying to Game
 
 1. Locate your Cube World installation directory (e.g., `C:\Program Files (x86)\Steam\steamapps\common\Cube World`).
-2. Verify that `CubeModLoader.fip` is placed alongside `cubeworld.exe`.
+2. Verify that `CubeForgeLoader.fip` is placed alongside `cubeworld.exe`.
 3. Create a `Mods` directory if it does not already exist:
    ```text
    Cube World/
    ├── cubeworld.exe
-   ├── CubeModLoader.fip
+   ├── CubeForgeLoader.fip
    └── Mods/
-       └── PyroProgression.dll
+       └── xp-progression.dll
    ```
-4. Copy the compiled `PyroProgression.dll` into the `Mods/` folder.
+4. Copy the compiled `xp-progression.dll` into the `Mods/` folder.
 5. Launch `cubeworld.exe`.
 
 ---
@@ -108,4 +104,4 @@ game->PrintMessage(L"[Debug] Custom log message\n", &color);
 4. Set breakpoints inside C++ hook handlers (e.g. `OnCreatureDeath`, `OnGameTick`, `GetGearScaling`).
 
 > [!CAUTION]
-> Do not set hardware/software breakpoints directly inside naked assembly stubs (`__attribute__((naked))`), as this can corrupt register states before preservation. Set breakpoints inside the invoked C/C++ target functions instead.
+> Do not set hardware/software breakpoints directly inside naked assembly stubs (`trampolines.asm`), as this can corrupt register states before preservation. Set breakpoints inside the invoked C/C++ target functions instead.

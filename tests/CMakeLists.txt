@@ -7,19 +7,19 @@ set(TEST_SOURCES
     unit/test_stat_scaling.cpp
 )
 
-add_executable(pyro_tests 
+add_executable(xp_progression_tests 
     ${TEST_SOURCES}
 )
 
 # Link against the Common object library, SDK, and compiler options
-target_link_libraries(pyro_tests PRIVATE 
-    Pyro::Common 
-    Pyro::CompilerFlags
+target_link_libraries(xp_progression_tests PRIVATE 
+    XPProgression::Common 
+    XPProgression::CompilerFlags
     CWSDK
 )
 
 # Include directories
-target_include_directories(pyro_tests PRIVATE
+target_include_directories(xp_progression_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/core
@@ -27,17 +27,17 @@ target_include_directories(pyro_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/src/memory
 )
 
-target_include_directories(pyro_tests SYSTEM PRIVATE
+target_include_directories(xp_progression_tests SYSTEM PRIVATE
     ${cubeforge_sdk_SOURCE_DIR}
 )
 
 if(MSVC)
-    set_property(TARGET pyro_tests PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET xp_progression_tests PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-# Reuse precompiled headers from PyroProgression_Common
-target_precompile_headers(pyro_tests REUSE_FROM PyroProgression_Common)
+# Reuse precompiled headers from xp_progression_common
+target_precompile_headers(xp_progression_tests REUSE_FROM xp_progression_common)
 
 include(CTest)
 enable_testing()
-add_test(NAME AllTests COMMAND pyro_tests)
+add_test(NAME AllTests COMMAND xp_progression_tests)

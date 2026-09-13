@@ -4,7 +4,7 @@
 #include <array>
 #include <cstddef>
 
-namespace pyro {
+namespace xp_progression {
 
     enum class StatType : uint8_t {
         ARMOR = 0,
@@ -55,4 +55,4 @@ namespace pyro {
         return table;
     }
 
-} // namespace pyro
+} // namespace xp_progression

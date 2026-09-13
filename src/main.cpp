@@ -22,7 +22,7 @@
 #include "GoldDropOverWrite.h"
 #include "RegionTextDrawOverwrite.h"
 
-/* Mod class containing all lifecycle callbacks for PyroProgression.
+/* Mod class containing all lifecycle callbacks for XP Progression.
  */
 class Mod : public GenericMod {
 private:
@@ -34,7 +34,7 @@ private:
         cube::Creature* player = game->GetPlayer();
         if (!player) return;
 
-        FloatRGBA purple(pyro::kColorPurpleR, pyro::kColorPurpleG, pyro::kColorPurpleB, pyro::kColorPurpleA);
+        FloatRGBA purple(xp_progression::kColorPurpleR, xp_progression::kColorPurpleG, xp_progression::kColorPurpleB, xp_progression::kColorPurpleA);
         wchar_t buffer[64];
         swprintf_s(buffer, sizeof(buffer)/sizeof(wchar_t), L"You gain %d xp.\n", xp);
         game->PrintMessage(buffer, &purple);
@@ -45,10 +45,10 @@ private:
             std::rand() % (cube::DOTS_PER_BLOCK * 50),
             std::rand() % (cube::DOTS_PER_BLOCK * 50)
         );
-        xpText.animation_length = pyro::kTextFXXPGainAnimLength;
-        xpText.distance_to_fall = pyro::kTextFXXPGainDistance;
+        xpText.animation_length = xp_progression::kTextFXXPGainAnimLength;
+        xpText.distance_to_fall = xp_progression::kTextFXXPGainDistance;
         xpText.color = purple;
-        xpText.size = pyro::kTextFXXPGainSize;
+        xpText.size = xp_progression::kTextFXXPGainSize;
         xpText.offset_2d = FloatVector2(-50.0f, -100.0f);
         xpText.text = std::wstring(L"+") + std::to_wstring(xp) + std::wstring(L" XP");
         xpText.field_60 = 0;
@@ -164,7 +164,7 @@ public:
             entity_data->XP -= player->GetXPForLevelup();
             entity_data->level += 1;
 
-            pyro::ProgressionSystem::ExecuteLevelUp(game, player);
+            xp_progression::ProgressionSystem::ExecuteLevelUp(game, player);
         }
 
         // Set starting region if not set
@@ -176,7 +176,7 @@ public:
         }
 
         // Poll Steam P2P packets
-        pyro::NetworkSync::PollIncomingPackets(game);
+        xp_progression::NetworkSync::PollIncomingPackets(game);
     }
 
     // Called for the host only
@@ -216,7 +216,7 @@ public:
         if (attacker->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player ||
             attacker->entity_data.hostility_type == cube::Creature::EntityBehaviour::Pet)
         {
-            const float xp_gain = pyro::ProgressionSystem::CalculateCreatureKillXP(creature);
+            const float xp_gain = xp_progression::ProgressionSystem::CalculateCreatureKillXP(creature);
             cube::Creature* player = game->GetPlayer();
             if (player && xp_gain > 0.0f)
             {
@@ -237,19 +237,19 @@ public:
                     : static_cast<int>(xp_gain);
 
                 this->GainXP(game, localXP);
-                pyro::NetworkSync::BroadcastXP(game, xp_gain);
+                xp_progression::NetworkSync::BroadcastXP(game, xp_gain);
             }
         }
     }
 
     virtual void OnGetItemBuyingPrice(cube::Item* item, int* price) override {
-        pyro::DropSystem::AdjustItemBuyingPrice(item, price);
+        xp_progression::DropSystem::AdjustItemBuyingPrice(item, price);
     }
 
     virtual void OnCreatureCanEquipItem(cube::Creature* creature, cube::Item* item, bool* equipable) override
     {
         if (!equipable) return;
-        if (!pyro::ProgressionSystem::CanEquipItem(creature, item))
+        if (!xp_progression::ProgressionSystem::CanEquipItem(creature, item))
         {
             *equipable = false;
         }
@@ -283,30 +283,30 @@ public:
         cube::Creature* player = game->GetPlayer();
         if (!player) return;
 
-        *gold = pyro::DropSystem::CalculateGoldBagValue(GetRegionDistance(player->entity_data.current_region));
+        *gold = xp_progression::DropSystem::CalculateGoldBagValue(GetRegionDistance(player->entity_data.current_region));
     }
 
     virtual void OnCreatureArmorCalculated(cube::Creature* creature, float* armor) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, armor, pyro::StatType::ARMOR, cube::GetGame());
-        g_ScalingSystem.ApplyCreatureStatBuff(creature, armor, pyro::StatType::ARMOR);
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, armor, xp_progression::StatType::ARMOR, cube::GetGame());
+        g_ScalingSystem.ApplyCreatureStatBuff(creature, armor, xp_progression::StatType::ARMOR);
     }
 
     virtual void OnCreatureCriticalCalculated(cube::Creature* creature, float* critical) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, critical, pyro::StatType::CRIT, cube::GetGame());
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, critical, xp_progression::StatType::CRIT, cube::GetGame());
     }
 
     virtual void OnCreatureAttackPowerCalculated(cube::Creature* creature, float* power) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, power, pyro::StatType::ATK_POWER, cube::GetGame());
-        g_ScalingSystem.ApplyCreatureStatBuff(creature, power, pyro::StatType::ATK_POWER);
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, power, xp_progression::StatType::ATK_POWER, cube::GetGame());
+        g_ScalingSystem.ApplyCreatureStatBuff(creature, power, xp_progression::StatType::ATK_POWER);
     }
 
     virtual void OnCreatureSpellPowerCalculated(cube::Creature* creature, float* power) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, power, pyro::StatType::SPELL_POWER, cube::GetGame());
-        g_ScalingSystem.ApplyCreatureStatBuff(creature, power, pyro::StatType::SPELL_POWER);
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, power, xp_progression::StatType::SPELL_POWER, cube::GetGame());
+        g_ScalingSystem.ApplyCreatureStatBuff(creature, power, xp_progression::StatType::SPELL_POWER);
     }
 
     virtual void OnCreatureHasteCalculated(cube::Creature* creature, float* haste) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, haste, pyro::StatType::HASTE, cube::GetGame());
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, haste, xp_progression::StatType::HASTE, cube::GetGame());
     }
 
     virtual void OnCreatureHPCalculated(cube::Creature* creature, float* hp) override {
@@ -315,21 +315,21 @@ public:
             SetEquipmentRegion(creature, creature->entity_data.current_region);
         }
 
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, hp, pyro::StatType::HEALTH, cube::GetGame());
-        g_ScalingSystem.ApplyCreatureStatBuff(creature, hp, pyro::StatType::HEALTH);
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, hp, xp_progression::StatType::HEALTH, cube::GetGame());
+        g_ScalingSystem.ApplyCreatureStatBuff(creature, hp, xp_progression::StatType::HEALTH);
     }
 
     virtual void OnCreatureResistanceCalculated(cube::Creature* creature, float* resistance) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, resistance, pyro::StatType::RESISTANCE, cube::GetGame());
-        g_ScalingSystem.ApplyCreatureStatBuff(creature, resistance, pyro::StatType::RESISTANCE);
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, resistance, xp_progression::StatType::RESISTANCE, cube::GetGame());
+        g_ScalingSystem.ApplyCreatureStatBuff(creature, resistance, xp_progression::StatType::RESISTANCE);
     }
 
     virtual void OnCreatureRegenerationCalculated(cube::Creature* creature, float* regeneration) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, regeneration, pyro::StatType::STAMINA, cube::GetGame());
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, regeneration, xp_progression::StatType::STAMINA, cube::GetGame());
     }
 
     virtual void OnCreatureManaGenerationCalculated(cube::Creature* creature, float* manaGeneration) override {
-        g_ScalingSystem.ApplyPlayerStatBuff(creature, manaGeneration, pyro::StatType::MANA, cube::GetGame());
+        g_ScalingSystem.ApplyPlayerStatBuff(creature, manaGeneration, xp_progression::StatType::MANA, cube::GetGame());
     }
 };
 

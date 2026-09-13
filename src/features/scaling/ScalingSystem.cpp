@@ -2,7 +2,7 @@
 #include "../../utility.h"
 #include <cmath>
 
-namespace pyro {
+namespace xp_progression {
 
     ScalingSystem::ScalingSystem() noexcept
         : m_playerScaling(CreateDefaultPlayerScaling()),
@@ -97,7 +97,7 @@ namespace pyro {
         if (category < 3 || category > 9) {
             return 0.0f;
         }
-        return CalculateOtherStats(item, creature) * (1.0f + static_cast<float>(PyroRand(item->modifier)) / 32768.0f);
+        return CalculateOtherStats(item, creature) * (1.0f + static_cast<float>(ProgressionRand(item->modifier)) / 32768.0f);
     }
 
     float ScalingSystem::CalculateRegen(cube::Item* item, cube::Creature* creature) const {
@@ -106,7 +106,7 @@ namespace pyro {
         if ((category < 4 || category > 9) && category != 26) {
             return 0.0f;
         }
-        return CalculateOtherStats(item, creature) * (1.0f + static_cast<float>(PyroRand(item->modifier + 0x157)) / 32768.0f);
+        return CalculateOtherStats(item, creature) * (1.0f + static_cast<float>(ProgressionRand(item->modifier + 0x157)) / 32768.0f);
     }
 
     float ScalingSystem::CalculateCrit(cube::Item* item, cube::Creature* creature) const {
@@ -115,7 +115,7 @@ namespace pyro {
         if (category < 3 || category > 10) {
             return 0.0f;
         }
-        return CalculateOtherStats(item, creature) * (1.0f + static_cast<float>(PyroRand(item->modifier + 0x99)) / 32768.0f);
+        return CalculateOtherStats(item, creature) * (1.0f + static_cast<float>(ProgressionRand(item->modifier + 0x99)) / 32768.0f);
     }
 
     void ScalingSystem::ApplyPlayerStatBuff(cube::Creature* creature, float* stat, StatType type, cube::Game* game) const {
@@ -151,4 +151,4 @@ namespace pyro {
         }
     }
 
-} // namespace pyro
+} // namespace xp_progression

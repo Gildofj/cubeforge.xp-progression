@@ -3,7 +3,7 @@
 #include <string>
 #include "cwsdk.h"
 
-namespace pyro {
+namespace xp_progression {
 
     class HUDFormatter {
     public:
@@ -18,4 +18,4 @@ namespace pyro {
         [[nodiscard]] static std::wstring FormatRegionBracket(int regionDistance);
     };
 
-} // namespace pyro
+} // namespace xp_progression

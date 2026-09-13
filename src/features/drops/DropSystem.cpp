@@ -1,7 +1,7 @@
 #include "DropSystem.h"
 #include "../../utility.h"
 
-namespace pyro {
+namespace xp_progression {
 
     void DropSystem::SetGoldDropValue(int value) {
         constexpr uint64_t address = 0x2A7602;
@@ -44,4 +44,4 @@ namespace pyro {
         }
     }
 
-} // namespace pyro
+} // namespace xp_progression

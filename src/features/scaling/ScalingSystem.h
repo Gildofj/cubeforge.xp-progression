@@ -4,7 +4,7 @@
 #include "../../core/StatTypes.h"
 #include "../../core/MathUtils.h"
 
-namespace pyro {
+namespace xp_progression {
 
     class ScalingSystem {
     private:
@@ -35,4 +35,4 @@ namespace pyro {
         void ApplyCreatureStatBuff(cube::Creature* creature, float* stat, StatType type) const;
     };
 
-} // namespace pyro
+} // namespace xp_progression

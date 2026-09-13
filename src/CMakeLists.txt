@@ -1,5 +1,5 @@
 # Create an OBJECT library for shared core files to avoid recompilation in tests
-add_library(PyroProgression_Common OBJECT
+add_library(xp_progression_common OBJECT
     utility.cpp
     features/drops/DropSystem.cpp
     features/hud/HUDFormatter.cpp
@@ -7,13 +7,13 @@ add_library(PyroProgression_Common OBJECT
     features/progression/ProgressionSystem.cpp
     features/scaling/ScalingSystem.cpp
 )
-add_library(Pyro::Common ALIAS PyroProgression_Common)
+add_library(XPProgression::Common ALIAS xp_progression_common)
 
 # Link to common compiler options, standard, and CWSDK
-target_link_libraries(PyroProgression_Common PUBLIC CWSDK Pyro::CompilerFlags)
+target_link_libraries(xp_progression_common PUBLIC CWSDK XPProgression::CompilerFlags)
 
 # Local include directories
-target_include_directories(PyroProgression_Common PUBLIC 
+target_include_directories(xp_progression_common PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/core>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/features>
@@ -21,17 +21,17 @@ target_include_directories(PyroProgression_Common PUBLIC
 )
 
 # External/Third-party include directories (marked SYSTEM to suppress warnings)
-target_include_directories(PyroProgression_Common SYSTEM PUBLIC 
+target_include_directories(xp_progression_common SYSTEM PUBLIC 
     ${cubeforge_sdk_SOURCE_DIR}
 )
 
 if(MSVC)
-    set_property(TARGET PyroProgression_Common PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    target_compile_definitions(PyroProgression_Common PRIVATE _ITERATOR_DEBUG_LEVEL=0 MODLOADER=1 CWSDK_NO_GLOBAL_NEW_DELETE=1)
+    set_property(TARGET xp_progression_common PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    target_compile_definitions(xp_progression_common PRIVATE _ITERATOR_DEBUG_LEVEL=0 MODLOADER=1 CWSDK_NO_GLOBAL_NEW_DELETE=1)
 endif()
 
 # Enable Precompiled Headers to speed up compilation
-target_precompile_headers(PyroProgression_Common PUBLIC
+target_precompile_headers(xp_progression_common PUBLIC
     <vector>
     <string>
     <unordered_map>
@@ -45,22 +45,23 @@ target_precompile_headers(PyroProgression_Common PUBLIC
 if(BUILD_MOD)
     if(MSVC)
         set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/trampolines.asm" PROPERTIES LANGUAGE ASM_MASM)
-        add_library(PyroProgression SHARED 
-            $<TARGET_OBJECTS:PyroProgression_Common>
+        add_library(xp-progression SHARED 
+            $<TARGET_OBJECTS:xp_progression_common>
             main.cpp
             trampolines.asm
         )
     else()
-        add_library(PyroProgression SHARED 
-            $<TARGET_OBJECTS:PyroProgression_Common>
+        add_library(xp-progression SHARED 
+            $<TARGET_OBJECTS:xp_progression_common>
             main.cpp
         )
     endif()
-    add_library(Pyro::Mod ALIAS PyroProgression)
-    add_library(Pyro::PyroProgression ALIAS PyroProgression)
+    add_library(xp_progression ALIAS xp-progression)
+    add_library(XPProgression::Mod ALIAS xp-progression)
+    add_library(CubeForge::XPProgression ALIAS xp-progression)
 
     # Local include directories
-    target_include_directories(PyroProgression PRIVATE 
+    target_include_directories(xp-progression PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/core
         ${CMAKE_CURRENT_SOURCE_DIR}/features
@@ -68,28 +69,28 @@ if(BUILD_MOD)
     )
 
     # External/Third-party include directories
-    target_include_directories(PyroProgression SYSTEM PRIVATE
+    target_include_directories(xp-progression SYSTEM PRIVATE
         ${cubeforge_sdk_SOURCE_DIR}
     )
 
-    target_link_libraries(PyroProgression PRIVATE 
+    target_link_libraries(xp-progression PRIVATE 
         CWSDK 
-        Pyro::CompilerFlags
+        XPProgression::CompilerFlags
     )
 
-    # Reuse Precompiled Headers from PyroProgression_Common
-    target_precompile_headers(PyroProgression REUSE_FROM PyroProgression_Common)
+    # Reuse Precompiled Headers from xp_progression_common
+    target_precompile_headers(xp-progression REUSE_FROM xp_progression_common)
 
     if(MSVC)
-        set_property(TARGET PyroProgression PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        set_property(TARGET xp-progression PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     endif()
 
     # Automatically synchronize built artifact to dist/ directory
-    add_custom_command(TARGET PyroProgression POST_BUILD
+    add_custom_command(TARGET xp-progression POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/dist"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:PyroProgression>
-            "${CMAKE_SOURCE_DIR}/dist/PyroProgression.dll"
-        COMMENT "Synchronizing PyroProgression.dll to dist/"
+            $<TARGET_FILE:xp-progression>
+            "${CMAKE_SOURCE_DIR}/dist/xp-progression.dll"
+        COMMENT "Synchronizing xp-progression.dll to dist/"
     )
 endif()

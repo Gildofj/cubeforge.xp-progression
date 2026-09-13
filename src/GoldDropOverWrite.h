@@ -5,7 +5,7 @@
 
 extern "C" void GetGoldDrops(cube::Creature* creature, float* gold)
 {
-    pyro::DropSystem::ProcessGoldDrops(creature, gold);
+    xp_progression::DropSystem::ProcessGoldDrops(creature, gold);
 }
 
 GETTER_VAR(void*, ASM_OverwriteGoldDrops_jmpback);

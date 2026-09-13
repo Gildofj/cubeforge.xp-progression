@@ -1,6 +1,6 @@
 # Mathematical Formulas & Progression Curves
 
-This document provides a comprehensive reference of all mathematical formulas, curves, and scaling algorithms implemented across **PyroProgression**.
+This document provides a comprehensive reference of all mathematical formulas, curves, and scaling algorithms implemented across **CubeForge XP Progression** (`xp-progression`).
 
 ---
 
@@ -12,7 +12,7 @@ This document provides a comprehensive reference of all mathematical formulas, c
 5. [Creature Scaling Formula](#creature-scaling-formula)
 6. [Gear Stat Calculations](#gear-stat-calculations)
 7. [Economy & Gold Formulas](#economy--gold-formulas)
-8. [Pseudo-Random Number Generator (PyroRand)](#pseudo-random-number-generator-pyrorand)
+8. [Pseudo-Random Number Generator (ProgressionRand)](#pseudo-random-number-generator-progressionrand)
 
 ---
 
@@ -73,12 +73,12 @@ $$\text{Level}_{\text{max}}(D) = 5 \times (D + 1)$$
 ### Creature Level Calculation
 For enemies (non-player / non-pet entities):
 
-$$\text{Level}_{\text{creature}} = (1 + 5 \times D_{\text{region}}) + (\text{PyroRand}(\text{creature.id}) \bmod 5)$$
+$$\text{Level}_{\text{creature}} = (1 + 5 \times D_{\text{region}}) + (\text{ProgressionRand}(\text{creature.id}) \bmod 5)$$
 
 ### Item Level Calculation
 For equipment items:
 
-$$\text{Level}_{\text{item}} = (1 + 5 \times D_{\text{region}}) + (\text{PyroRand}(\text{item.modifier}) \bmod 5)$$
+$$\text{Level}_{\text{item}} = (1 + 5 \times D_{\text{region}}) + (\text{ProgressionRand}(\text{item.modifier}) \bmod 5)$$
 
 ### Level Equipment Cap
 A player may only equip gear if:
@@ -147,9 +147,9 @@ $$\text{Stat}_{\text{secondary}} = \text{Base}_{\text{other}} \times \text{Playe
 
 Specific secondary stats incorporate a deterministic variation derived from the item modifier:
 
-- **Haste**: $\text{Haste} = \text{Stat}_{\text{secondary}} \times \left(1 + \frac{\text{PyroRand}(\text{mod})}{32768}\right)$
-- **Regeneration**: $\text{Regen} = \text{Stat}_{\text{secondary}} \times \left(1 + \frac{\text{PyroRand}(\text{mod} + 343)}{32768}\right)$
-- **Critical Strike**: $\text{Crit} = \text{Stat}_{\text{secondary}} \times \left(1 + \frac{\text{PyroRand}(\text{mod} + 153)}{32768}\right)$
+- **Haste**: $\text{Haste} = \text{Stat}_{\text{secondary}} \times \left(1 + \frac{\text{ProgressionRand}(\text{mod})}{32768}\right)$
+- **Regeneration**: $\text{Regen} = \text{Stat}_{\text{secondary}} \times \left(1 + \frac{\text{ProgressionRand}(\text{mod} + 343)}{32768}\right)$
+- **Critical Strike**: $\text{Crit} = \text{Stat}_{\text{secondary}} \times \left(1 + \frac{\text{ProgressionRand}(\text{mod} + 153)}{32768}\right)$
 
 ---
 
@@ -176,9 +176,9 @@ $$\text{Gold}_{\text{drop}} = \max(1, \text{Level}_{\text{creature}})$$
 
 ---
 
-## Pseudo-Random Number Generator (PyroRand)
+## Pseudo-Random Number Generator (ProgressionRand)
 
 To ensure deterministic, reproducible level variations without storing additional state, a Linear Congruential Generator (LCG) is used:
 
 $$\text{seed}_{n+1} = (\text{seed}_n \times 1103515245 + 12345) \pmod{2^{64}}$$
-$$\text{PyroRand}(\text{seed}) = \left\lfloor \frac{\text{seed}_{n+1}}{65536} \right\rfloor \bmod 32768$$
+$$\text{ProgressionRand}(\text{seed}) = \left\lfloor \frac{\text{seed}_{n+1}}{65536} \right\rfloor \bmod 32768$$

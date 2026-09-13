@@ -1,6 +1,6 @@
 # Multiplayer Progression & Networking Guide
 
-This guide details how multiplayer progression, party XP sharing, and network synchronization operate in **PyroProgression**.
+This guide details how multiplayer progression, party XP sharing, and network synchronization operate in **CubeForge XP Progression** (`xp-progression`).
 
 ---
 
@@ -15,7 +15,7 @@ This guide details how multiplayer progression, party XP sharing, and network sy
 
 ## Overview
 
-In vanilla Cube World, multiplayer progression relies solely on region-locked artifacts. PyroProgression modifies this by introducing party-wide XP sharing across all connected players using Steam's peer-to-peer (P2P) networking layer.
+In vanilla Cube World, multiplayer progression relies solely on region-locked artifacts. `xp-progression` modifies this by introducing party-wide XP sharing across all connected players using Steam's peer-to-peer (P2P) networking layer.
 
 ---
 
@@ -68,6 +68,6 @@ Communication occurs over **SteamNetworking Virtual Channel 2** using reliable t
 
 ## Multiplayer Best Practices
 
-- **Mod Compatibility**: All participating players should have the same version of PyroProgression installed to ensure packet definitions and level formulas match.
+- **Mod Compatibility**: All participating players should have the same version of `xp-progression` installed to ensure packet definitions and level formulas match.
 - **Starting Out Together**: When starting a multiplayer world, explore together so your home regions and level curves stay synchronized.
 - **Using `/recenter` in Parties**: If the party moves to a new distant region together, the host (and players) should run `/recenter` to adjust the world difficulty to their current location.

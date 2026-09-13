@@ -14,5 +14,5 @@ int main() {
     RegisterStatScalingTests();
     RegisterNetworkSyncTests();
 
-    return pyro::testing::TestRunner::Instance().RunAllTests();
+    return xp_progression::testing::TestRunner::Instance().RunAllTests();
 }

@@ -1,7 +1,7 @@
 .code
 
 ; =============================================================================
-; MASM x64 Trampolines and Mid-function Hooks for PyroProgression
+; MASM x64 Trampolines and Mid-function Hooks for xp-progression
 ; Built with Microsoft Macro Assembler (ml64.exe)
 ; =============================================================================
 

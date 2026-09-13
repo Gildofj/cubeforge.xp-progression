@@ -17,15 +17,15 @@ inline int XorShift32Bits(int mod) {
     return mod3;
 }
 
-TEST_FUNC(ProgressionFormulas, PyroRandDeterminism) {
+TEST_FUNC(ProgressionFormulas, ProgressionRandDeterminism) {
     // Deterministic random numbers
-    ASSERT_EQ(PyroRand(0), (unsigned long long)0);
-    ASSERT_EQ(PyroRand(123456), PyroRand(123456));
-    ASSERT_EQ(PyroRand(0xABCDEF), PyroRand(0xABCDEF));
+    ASSERT_EQ(ProgressionRand(0), (unsigned long long)0);
+    ASSERT_EQ(ProgressionRand(123456), ProgressionRand(123456));
+    ASSERT_EQ(ProgressionRand(0xABCDEF), ProgressionRand(0xABCDEF));
 
     // Must be bounded within 15-bit integer space (0 to 32767)
     for (unsigned long long s = 0; s < 1000; ++s) {
-        unsigned long long val = PyroRand(s);
+        unsigned long long val = ProgressionRand(s);
         ASSERT_LT(val, (unsigned long long)32768);
     }
 }
@@ -145,7 +145,7 @@ TEST_FUNC(ProgressionFormulas, GoldDropByteSplitting) {
 }
 
 void RegisterProgressionFormulasTests() {
-    REGISTER_TEST(ProgressionFormulas, PyroRandDeterminism);
+    REGISTER_TEST(ProgressionFormulas, ProgressionRandDeterminism);
     REGISTER_TEST(ProgressionFormulas, LevelVariationBounds);
     REGISTER_TEST(ProgressionFormulas, RegionDistanceCalculations);
     REGISTER_TEST(ProgressionFormulas, XPOverwriteFormulaAndGrowth);

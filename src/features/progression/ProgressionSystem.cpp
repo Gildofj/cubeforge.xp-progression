@@ -1,7 +1,7 @@
 #include "ProgressionSystem.h"
 #include "../../utility.h"
 
-namespace pyro {
+namespace xp_progression {
 
     bool ProgressionSystem::CanEquipItem(const cube::Creature* creature, const cube::Item* item) noexcept {
         if (!creature || !item) return true;
@@ -69,4 +69,4 @@ namespace pyro {
         creature->entity_data.HP = creature->GetMaxHP();
     }
 
-} // namespace pyro
+} // namespace xp_progression

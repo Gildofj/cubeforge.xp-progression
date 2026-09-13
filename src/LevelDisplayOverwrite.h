@@ -17,7 +17,7 @@ extern "C" void OverwriteItemName(cube::Item* item, std::wstring* string)
     }
 
     const double item_level = static_cast<double>(GetItemLevel(item));
-    const std::wstring prefix = pyro::HUDFormatter::FormatLevelPrefix(item_level);
+    const std::wstring prefix = xp_progression::HUDFormatter::FormatLevelPrefix(item_level);
     *string = prefix + *string;
 }
 
@@ -26,7 +26,7 @@ extern "C" void LevelDisplayOverwriteCreature(cube::Creature* creature, void* un
     if (!creature || !unk) return;
 
     const double creature_level = static_cast<double>(GetCreatureLevel(creature));
-    const std::wstring prefix = pyro::HUDFormatter::FormatLevelPrefix(creature_level);
+    const std::wstring prefix = xp_progression::HUDFormatter::FormatLevelPrefix(creature_level);
 
     wchar_t buffer[64];
     wcsncpy_s(buffer, prefix.c_str(), _TRUNCATE);

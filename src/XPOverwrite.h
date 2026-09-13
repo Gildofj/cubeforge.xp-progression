@@ -5,7 +5,7 @@
 
 extern "C" int XP_Overwrite(int level)
 {
-    return pyro::CalculateXPForLevel(level);
+    return xp_progression::CalculateXPForLevel(level);
 }
 
 extern "C" void ASM_XP_Overwrite();

@@ -20,7 +20,7 @@ int GetRegionDistance(IntVector2 region)
     {
         base_region = player->entity_data.current_region;
     }
-    return pyro::CalculateChebyshevDistance(base_region, region);
+    return xp_progression::CalculateChebyshevDistance(base_region, region);
 }
 
 int GetItemLevel(cube::Item* item)
@@ -36,7 +36,7 @@ int GetItemLevel(cube::Item* item)
         return item->rarity;
     }
 
-    return pyro::CalculateItemLevel(GetRegionDistance(item->region), item->modifier, item->rarity);
+    return xp_progression::CalculateItemLevel(GetRegionDistance(item->region), item->modifier, item->rarity);
 }
 
 void SetEquipmentRegion(cube::Creature* creature, IntVector2 region)
@@ -92,16 +92,16 @@ int GetCreatureLevel(cube::Creature* creature)
     case cube::Creature::EntityBehaviour::Pet:
         return creature->entity_data.level;
     default:
-        return pyro::CalculateCreatureLevel(distance, creature->id);
+        return xp_progression::CalculateCreatureLevel(distance, creature->id);
     }
 }
 
 int GetLevelVariation(long long modifier, int range)
 {
-    return pyro::GetLevelVariation(modifier, range);
+    return xp_progression::GetLevelVariation(modifier, range);
 }
 
-unsigned long long PyroRand(unsigned long long seed)
+unsigned long long ProgressionRand(unsigned long long seed)
 {
-    return pyro::PyroRand(seed);
+    return xp_progression::ProgressionRand(seed);
 }

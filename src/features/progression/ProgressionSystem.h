@@ -4,7 +4,7 @@
 #include "../../core/Constants.h"
 #include "../../core/MathUtils.h"
 
-namespace pyro {
+namespace xp_progression {
 
     class ProgressionSystem {
     public:
@@ -19,4 +19,4 @@ namespace pyro {
         static void ExecuteLevelUp(cube::Game* game, cube::Creature* creature);
     };
 
-} // namespace pyro
+} // namespace xp_progression

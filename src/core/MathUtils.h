@@ -7,13 +7,13 @@
 #include "cwsdk.h"
 #include "Constants.h"
 
-namespace pyro {
+namespace xp_progression {
 
     /**
      * @brief Deterministic Linear Congruential Generator (LCG).
-     * Matches Cube World / Pyro mod progression pseudorandom sequence.
+     * Matches Cube World / XP progression mod pseudorandom sequence.
      */
-    [[nodiscard]] constexpr uint64_t PyroRand(uint64_t seed) noexcept {
+    [[nodiscard]] constexpr uint64_t ProgressionRand(uint64_t seed) noexcept {
         const uint64_t n = seed * 1103515245ULL + 12345ULL;
         return (n / 65536ULL) % 32768ULL;
     }
@@ -23,7 +23,7 @@ namespace pyro {
      */
     [[nodiscard]] constexpr int GetLevelVariation(int64_t modifier, int range) noexcept {
         if (range <= 0) return 0;
-        return static_cast<int>(PyroRand(static_cast<uint64_t>(modifier)) % static_cast<uint64_t>(range));
+        return static_cast<int>(ProgressionRand(static_cast<uint64_t>(modifier)) % static_cast<uint64_t>(range));
     }
 
     /**
@@ -58,4 +58,4 @@ namespace pyro {
         return static_cast<int>(50.0f * (1.0f + std::pow(static_cast<float>(level), 1.3f)));
     }
 
-} // namespace pyro
+} // namespace xp_progression

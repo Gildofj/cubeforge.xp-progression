@@ -1,6 +1,6 @@
 # Memory Hooks & Reverse Engineering Reference
 
-This document catalogs all memory offsets, detour hooks, assembly trampolines, and bytecode modifications performed by **PyroProgression** inside `cubeworld.exe`.
+This document catalogs all memory offsets, detour hooks, assembly trampolines, and bytecode modifications performed by **CubeForge XP Progression** (`xp-progression`) inside `cubeworld.exe`.
 
 ---
 
@@ -40,7 +40,7 @@ All offsets are relative to the base address of `cubeworld.exe` in the process a
 
 ## Bytecode Patches (NOP Overrides)
 
-During the first execution of `OnGameTick`, PyroProgression disables the native artifact leveling system by overwriting opcodes with `0x90` (`NOP`):
+During the first execution of `OnGameTick`, `xp-progression` disables the native artifact leveling system by overwriting opcodes with `0x90` (`NOP`):
 
 ```cpp
 // Disable old leveling system
@@ -60,7 +60,7 @@ This prevents Cube World from resetting level progress or applying vanilla level
 
 ## Assembly Trampolines & ABI Details
 
-Because Microsoft x64 ABI requires preserving non-volatile registers and maintaining 16-byte stack alignment prior to `CALL` instructions, PyroProgression uses standard macros:
+Because Microsoft x64 ABI requires preserving non-volatile registers and maintaining 16-byte stack alignment prior to `CALL` instructions, `xp-progression` uses standard macros:
 
 ### Context Macros
 ```nasm
@@ -79,20 +79,20 @@ Because Microsoft x64 ABI requires preserving non-volatile registers and maintai
 ## Hook Subsystems
 
 ### 1. XP Overwrite
-- **File**: [`src/XPOverwrite.h`](file:///d:/Projects/PyroProgression/src/XPOverwrite.h)
+- **File**: [`src/XPOverwrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/XPOverwrite.h)
 - **Target Offset**: `0x5FA80`
 - **Behavior**: Intercepts the function computing required XP for a given level.
 - **Trampoline**: `ASM_XP_Overwrite` allocates a 272-byte stack frame (`0x110`), saves all 16 SIMD registers (`xmm0`–`xmm15`), invokes `XP_Overwrite(int level)`, stores the result in `rax`, and restores SIMD state.
 
 ### 2. Level Display & Item Name Overwrites
-- **File**: [`src/LevelDisplayOverwrite.h`](file:///d:/Projects/PyroProgression/src/LevelDisplayOverwrite.h)
+- **File**: [`src/LevelDisplayOverwrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/LevelDisplayOverwrite.h)
 - **Target Offsets**:
   - `0xB1966`: Hooks creature nametag rendering to display `LV <level>` over enemies.
   - `0x16466C`: Hooks tooltip text generation to prepend `LV <level>` to item names.
 - **String Formatting**: Suffixes `K` (for levels $\ge 1,000$) and `M` (for levels $\ge 1,000,000$).
 
 ### 3. Gear Scaling Overwrite
-- **File**: [`src/GearScalingOverWrite.h`](file:///d:/Projects/PyroProgression/src/GearScalingOverWrite.h)
+- **File**: [`src/GearScalingOverWrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/GearScalingOverWrite.h)
 - **Target Offsets**:
   - `0x109C50`: Main gear scaling routine.
   - `0x10A490`: Haste calculation.
@@ -101,12 +101,12 @@ Because Microsoft x64 ABI requires preserving non-volatile registers and maintai
 - **Behavior**: Directly replaced by C calling convention exports (`GetGearScaling`, `GetHasteRe`, etc.).
 
 ### 4. Gold Drop Overwrite
-- **File**: [`src/GoldDropOverWrite.h`](file:///d:/Projects/PyroProgression/src/GoldDropOverWrite.h)
+- **File**: [`src/GoldDropOverWrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/GoldDropOverWrite.h)
 - **Target Offset**: `0x2A752C`
 - **Behavior**: Intercepts creature death drop routines, passes creature pointer and gold pointer to `GetGoldDrops`, and writes creature level to memory offset `0x2A7606`.
 
 ### 5. Region Text Draw Overwrite
-- **File**: [`src/RegionTextDrawOverwrite.h`](file:///d:/Projects/PyroProgression/src/RegionTextDrawOverwrite.h)
+- **File**: [`src/RegionTextDrawOverwrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/RegionTextDrawOverwrite.h)
 - **Target Offset**: `0xABA58`
 - **Behavior**: Injects regional level bracket (e.g. `LV.1-5 Ocean`, `LV.6-10 Hills`) into the `plasma::Node` rendering the top-right region title.
 

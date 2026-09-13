@@ -5,7 +5,7 @@
 #include "cwsdk.h"
 #include "../../core/Constants.h"
 
-namespace pyro {
+namespace xp_progression {
 
     struct XPSyncPacket {
         uint32_t packetId = kPacketIdXPSync;
@@ -35,4 +35,4 @@ namespace pyro {
         static void BroadcastXP(cube::Game* game, float totalXPGain);
     };
 
-} // namespace pyro
+} // namespace xp_progression

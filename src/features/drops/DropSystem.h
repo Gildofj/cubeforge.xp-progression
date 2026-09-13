@@ -2,7 +2,7 @@
 
 #include "cwsdk.h"
 
-namespace pyro {
+namespace xp_progression {
 
     class DropSystem {
     public:
@@ -27,4 +27,4 @@ namespace pyro {
         static void AdjustItemBuyingPrice(cube::Item* item, int* price);
     };
 
-} // namespace pyro
+} // namespace xp_progression

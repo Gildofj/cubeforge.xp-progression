@@ -1,11 +1,11 @@
-# 🔥 PyroProgression
+# ⚔️ xp-progression
 
 <div align="center">
 
 [![Cube World Mod](https://img.shields.io/badge/Cube%20World-Steam%20Release-blue.svg)](https://store.steampowered.com/app/1128000/Cube_World/)
 [![Architecture](https://img.shields.io/badge/Architecture-x86__64-orange.svg)](docs/ARCHITECTURE.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
-[![Releases](https://img.shields.io/github/v/release/thetrueoneshots/PyroProgression)](https://github.com/thetrueoneshots/PyroProgression/releases)
+[![Releases](https://img.shields.io/github/v/release/Gildofj/cubeforge.xp-progression)](https://github.com/Gildofj/cubeforge.xp-progression/releases)
 
 **A complete RPG progression, XP, and levelling overhaul for the Cube World Steam release.**
 
@@ -13,7 +13,7 @@
 
 <br/>
 
-![PyroProgression Mod Preview](https://i.imgur.com/0zKnyZ0.png)
+![XP Progression Mod Preview](https://i.imgur.com/0zKnyZ0.png)
 
 </div>
 
@@ -21,9 +21,9 @@
 
 ## 📖 Overview
 
-**PyroProgression** reintroduces the classic Alpha-style XP and leveling playstyle to the Cube World Steam release. 
+**xp-progression** reintroduces the classic Alpha-style XP and leveling playstyle to the Cube World Steam release. 
 
-Instead of relying solely on region-locked artifacts for character growth, PyroProgression implements a dynamic RPG leveling system where defeating monsters grants experience points, levels increase player attributes, equipment scales based on distance and level, and difficulty naturally ramps up as you explore further outward from your home region.
+Instead of relying solely on region-locked artifacts for character growth, xp-progression implements a dynamic RPG leveling system where defeating monsters grants experience points, levels increase player attributes, equipment scales based on distance and level, and difficulty naturally ramps up as you explore further outward from your home region.
 
 ---
 
@@ -45,21 +45,21 @@ Instead of relying solely on region-locked artifacts for character growth, PyroP
 
 ### Prerequisites
 - **Cube World (Steam Edition)** (x86_64)
-- **CubeModLoader** ([Download latest release](https://github.com/thetrueoneshots/Cube-World-Mod-Launcher/releases))
+- **CubeForge Loader** / **CubeModLoader** ([Download latest release](https://github.com/Gildofj/cubeforge.loader/releases))
 
 ### Quick Setup
-1. Download the latest `PyroProgression_v.x.x.zip` from the [Releases page](https://github.com/thetrueoneshots/PyroProgression/releases).
-2. Place `CubeModLoader.fip` into your root Cube World folder (where `cubeworld.exe` is located).
+1. Download the latest `xp-progression_v.x.x.zip` from the [Releases page](https://github.com/Gildofj/cubeforge.xp-progression/releases).
+2. Place `CubeForgeLoader.fip` into your root Cube World folder (where `cubeworld.exe` is located).
 3. Create a folder named `Mods` in your Cube World root directory if it doesn't already exist.
-4. Copy `PyroProgression.dll` into the `Mods/` folder.
+4. Copy `xp-progression.dll` into the `Mods/` folder.
 5. Launch Cube World and enjoy!
 
 ```text
 📁 Cube World/
 ├── 📄 cubeworld.exe
-├── 📄 CubeModLoader.fip
+├── 📄 CubeForgeLoader.fip
 └── 📁 Mods/
-    └── 📄 PyroProgression.dll
+    └── 📄 xp-progression.dll
 ```
 
 > For comprehensive troubleshooting and multiplayer instructions, see the [Installation Guide](docs/guides/INSTALLATION.md).
@@ -105,7 +105,7 @@ graph TD
 Extensive technical and user documentation is maintained in the [`docs/`](docs/) directory:
 
 - 🏛️ **[Architecture & System Design](docs/ARCHITECTURE.md)**: DLL lifecycle, memory detours, hook orchestration, and subsystem structure.
-- 📐 **[Formulas & Scaling Reference](docs/FORMULAS.md)**: Detailed breakdown of XP curves, creature logarithm scaling, gear formulas, and the `PyroRand` LCG.
+- 📐 **[Formulas & Scaling Reference](docs/FORMULAS.md)**: Detailed breakdown of XP curves, creature logarithm scaling, gear formulas, and the `ProgressionRand` LCG.
 - 🔍 **[Memory Hooks & Reverse Engineering](docs/HOOKS-AND-MEMORY.md)**: Memory offset catalogue, assembly trampolines (`ASM_*`), and calling conventions.
 - 🛠️ **[Developer & Build Guide](docs/DEVELOPMENT.md)**: Building from source with CMake, compiler prerequisites, and debugging with Visual Studio.
 - 🤝 **[Contributing Guidelines](docs/CONTRIBUTING.md)**: Code style, PR guidelines, and open-source contribution procedures.
@@ -119,31 +119,23 @@ Extensive technical and user documentation is maintained in the [`docs/`](docs/)
 
 ### Requirements
 - **Windows 10 / 11 (64-bit)**
-- **CMake 3.8+**
-- **C++ Compiler** with x86_64 inline assembly support (MSVC 2019/2022 or MinGW-w64 GCC/Clang)
-- **[CWSDK](https://github.com/thetrueoneshots/cwsdk)** submodule
+- **CMake 3.25+**
+- **MSVC Toolset (x64) or Clang**
+- **[CubeForge SDK (CWSDK)](https://github.com/Gildofj/cubeforge.sdk)**
 
 ```bash
-# Clone the repository and initialize submodules
-git clone https://github.com/thetrueoneshots/PyroProgression.git
-cd PyroProgression
-git submodule update --init --recursive
+# Clone the repository
+git clone https://github.com/Gildofj/cubeforge.xp-progression.git
+cd cubeforge.xp-progression
 
-# Compilar a DLL com um único comando:
-make
+# Compile via PowerShell build script:
+.\build.ps1 -Target all -BuildType Release
 
-# Ou via PowerShell / Batch:
-.\build.ps1
-# .\build.bat
+# Run automated tests:
+.\build.ps1 -Target test
 ```
 
-A DLL compilada (`PyroProgression.dll`) é automaticamente gerada e copiada para a pasta `dist/`.
-
-#### Comandos Úteis do Makefile:
-- `make` ou `make build` — Compila a DLL em modo Release e copia para `dist/`
-- `make test` — Compila e roda os testes unitários automatizados
-- `make clean` — Limpa os diretórios de compilação (`build/` e `dist/`)
-
+A DLL compilada (`xp-progression.dll`) é automaticamente gerada e copiada para a pasta `dist/`.
 
 ---
 
@@ -175,18 +167,17 @@ A DLL compilada (`PyroProgression.dll`) é automaticamente gerada e copiada para
 - Introduced the `/recenter` chat command.
 
 ### `[v.1.0]` — Initial Release
-- Initial public release of PyroProgression for Cube World Steam.
+- Initial public release of xp-progression for Cube World Steam.
 
 ---
 
 ## 👥 Credits & Acknowledgments
 
-- **Lead Developer**: `thetrueoneshots`
-- **Inspiration & Mod Namesake**: `PyroThunderzz` — for pitching the concept and driving development forward.
+- **Lead Developer**: `thetrueoneshots`, modernized and maintained by `Gildo FJ` (CubeForge Project)
 - **Testing & Balancing**: `S.`, `2 AZ ToufouMaster`
 - **Network Reverse Engineering**: `Andoryuuta` & `ChrisMiuchiz` ([Cube-World-Chat-Mod](https://github.com/ChrisMiuchiz/Cube-World-Chat-Mod))
 - **Playtesters**: `CaterpillarCreditUnion`, `Coldurs`, `spenny`, `Shlomopoco`, `Nerah`, `mharr`, `Tabs`, and `TheBagel3`.
-- **SDK**: Built with [CWSDK](https://github.com/thetrueoneshots/cwsdk).
+- **SDK**: Built with [CubeForge SDK (CWSDK)](https://github.com/Gildofj/cubeforge.sdk).
 
 ---
 

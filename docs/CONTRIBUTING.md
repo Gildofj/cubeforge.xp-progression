@@ -1,6 +1,6 @@
 # Contributing Guidelines
 
-Thank you for your interest in contributing to **PyroProgression**! Open-source contributions from the community help keep Cube World modding alive and vibrant.
+Thank you for your interest in contributing to **xp-progression**! Open-source contributions from the community help keep Cube World modding alive and vibrant.
 
 ---
 

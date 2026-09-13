@@ -2,7 +2,7 @@
 #include "../../core/Constants.h"
 #include <vector>
 
-namespace pyro {
+namespace xp_progression {
 
     std::vector<uint8_t> NetworkSync::SerializeXPPacket(int xpAmount) {
         BytesIO writer;
@@ -104,4 +104,4 @@ namespace pyro {
         }
     }
 
-} // namespace pyro
+} // namespace xp_progression

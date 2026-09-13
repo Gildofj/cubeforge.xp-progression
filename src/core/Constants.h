@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace pyro {
+namespace xp_progression {
 
     // Progression constants
     constexpr int kLevelsPerRegion = 5;
@@ -27,4 +27,4 @@ namespace pyro {
     constexpr float kColorPurpleB = 1.00f;
     constexpr float kColorPurpleA = 1.00f;
 
-} // namespace pyro
+} // namespace xp_progression

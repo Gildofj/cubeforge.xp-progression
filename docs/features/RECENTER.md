@@ -1,6 +1,6 @@
 # Feature: The `/recenter` Command
 
-The `/recenter` command is a vital mechanic in **PyroProgression** that gives players control over their progression center without breaking game balance.
+The `/recenter` command is a vital mechanic in **CubeForge XP Progression** (`xp-progression`) that gives players control over their progression center without breaking game balance.
 
 ---
 
@@ -14,7 +14,7 @@ The `/recenter` command is a vital mechanic in **PyroProgression** that gives pl
 
 ## Why Does It Exist?
 
-In PyroProgression, creature and gear levels increase as you travel further from your starting region based on Chebyshev distance ($D = \max(|X-X_0|, |Y-Y_0|)$).
+In `xp-progression`, creature and gear levels increase as you travel further from your starting region based on Chebyshev distance ($D = \max(|X-X_0|, |Y-Y_0|)$).
 
 If you explore 10 regions away from your initial spawn point, enemies will be Level 50+. If you choose to settle in a distant land or build a base there, exploring even further would normally cause levels to climb indefinitely.
 
@@ -59,7 +59,7 @@ Simply open the chat window (`Enter`) and type:
 ## Internal Mechanics & Safeguards
 
 ### Anti-Abuse Health Management
-When the world recenters, enemy levels drop, which could theoretically cause HP glitching. PyroProgression handles this with a special entity loop:
+When the world recenters, enemy levels drop, which could theoretically cause HP glitching. `xp-progression` handles this with a special entity loop:
 
 ```cpp
 // Reset HP of all creatures

@@ -4,7 +4,7 @@
 #include "features/scaling/ScalingSystem.h"
 
 // Global scaling system instance shared across hooks
-inline pyro::ScalingSystem g_ScalingSystem;
+inline xp_progression::ScalingSystem g_ScalingSystem;
 
 extern "C" float GetGearScaling(cube::Item* item, cube::Creature* creature, int base)
 {

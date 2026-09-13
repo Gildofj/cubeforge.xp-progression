@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 
 if(CMAKE_HOST_WIN32 OR CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-    project(PyroProgression VERSION "1.0.0" LANGUAGES C CXX ASM_MASM)
+    project(xp-progression VERSION "1.0.0" LANGUAGES C CXX ASM_MASM)
 else()
-    project(PyroProgression VERSION "1.0.0" LANGUAGES C CXX)
+    project(xp-progression VERSION "1.0.0" LANGUAGES C CXX)
 endif()
 
 # Enforce standard-compliant and modern MSVC runtime behavior
@@ -41,13 +41,13 @@ if(ipo_supported)
 endif()
 
 # Create compiler interface target to enforce standards and common options
-add_library(PyroProgression_CompilerFlags INTERFACE)
-add_library(Pyro::CompilerFlags ALIAS PyroProgression_CompilerFlags)
-add_library(CubeForge::CompilerFlags ALIAS PyroProgression_CompilerFlags)
-target_compile_features(PyroProgression_CompilerFlags INTERFACE cxx_std_20 c_std_11)
+add_library(xp_progression_compiler_flags INTERFACE)
+add_library(XPProgression::CompilerFlags ALIAS xp_progression_compiler_flags)
+add_library(CubeForge::CompilerFlags ALIAS xp_progression_compiler_flags)
+target_compile_features(xp_progression_compiler_flags INTERFACE cxx_std_20 c_std_11)
 
 if(MSVC)
-    target_compile_options(PyroProgression_CompilerFlags INTERFACE 
+    target_compile_options(xp_progression_compiler_flags INTERFACE 
         $<$<COMPILE_LANGUAGE:CXX>:
             /W4          # Stricter warnings (Level 4)
             /EHsc        # Standard C++ exception handling
@@ -60,7 +60,7 @@ if(MSVC)
             /Zc:inline   # Remove unreferenced functions or data
         >
     )
-    target_compile_definitions(PyroProgression_CompilerFlags INTERFACE
+    target_compile_definitions(xp_progression_compiler_flags INTERFACE
         _ITERATOR_DEBUG_LEVEL=0
         _CRT_SECURE_NO_WARNINGS
         DIRECTINPUT_VERSION=0x0800
@@ -70,7 +70,7 @@ if(MSVC)
         CWSDK_NO_GLOBAL_NEW_DELETE=1
     )
 else()
-    target_compile_options(PyroProgression_CompilerFlags INTERFACE 
+    target_compile_options(xp_progression_compiler_flags INTERFACE 
         $<$<COMPILE_LANGUAGE:CXX>:
             -Wall 
             -Wextra 
@@ -107,7 +107,7 @@ FetchContent_MakeAvailable(cubeforge_sdk)
 # Restore Clang-Tidy for project targets
 set(CMAKE_CXX_CLANG_TIDY ${OLD_CMAKE_CXX_CLANG_TIDY})
 
-option(BUILD_MOD "Build PyroProgression shared library / mod DLL" ON)
+option(BUILD_MOD "Build xp-progression shared library / mod DLL" ON)
 option(BUILD_TESTING "Build automated unit and regression tests" ON)
 
 # Source subdirectory for mod objects and DLL

@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-    PyroProgression Mod Build Script (MSVC x64) - Modernized via CMake Presets
+    xp-progression Mod Build Script (MSVC x64) - Modernized via CMake Presets
 .DESCRIPTION
-    Script de automação para compilação unificada com MSVC x64 de PyroProgression.dll e testes.
+    Script de automação para compilação unificada com MSVC x64 de xp-progression.dll e testes.
     Utiliza o sistema de CMakePresets.json do CMake 3.25+.
 .EXAMPLE
     .\build.ps1
@@ -70,7 +70,7 @@ if ($isWindows) {
         Write-Error "O target 'mod' não é suportado nativamente no macOS/Linux. Apenas o target 'test' ou 'all' estão disponíveis para execução de testes unitários."
     }
     if ($InstallPath -ne "") {
-        Write-Warning "Instalação desativada: O target de instalação só é suportado no Windows onde o PyroProgression é compilado."
+        Write-Warning "Instalação desativada: O target de instalação só é suportado no Windows onde o xp-progression é compilado."
         $InstallPath = ""
     }
 }
@@ -95,12 +95,12 @@ switch ($Target) {
         cmake --build --preset $presetName --parallel
     }
     "mod" {
-        Write-Host "Compilando target PyroProgression..." -ForegroundColor Cyan
-        cmake --build --preset $presetName --target PyroProgression
+        Write-Host "Compilando target xp-progression..." -ForegroundColor Cyan
+        cmake --build --preset $presetName --target xp-progression
     }
     "test" {
         Write-Host "Compilando e executando testes via CTest..." -ForegroundColor Cyan
-        cmake --build --preset $presetName --target pyro_tests
+        cmake --build --preset $presetName --target xp_progression_tests
         ctest --preset $testPresetName
     }
 }
@@ -115,21 +115,21 @@ if ($InstallPath -ne "") {
         $modsDir = Join-Path $InstallPath "Mods"
     }
 
-    Write-Host "Instalando PyroProgression.dll em $modsDir..." -ForegroundColor Magenta
+    Write-Host "Instalando xp-progression.dll em $modsDir..." -ForegroundColor Magenta
 
     $dllCandidates = @(
-        (Join-Path $buildDir "src/PyroProgression.dll"),
-        (Join-Path $buildDir "src/$BuildType/PyroProgression.dll"),
-        (Join-Path $PSScriptRoot "dist/PyroProgression.dll")
+        (Join-Path $buildDir "src/xp-progression.dll"),
+        (Join-Path $buildDir "src/$BuildType/xp-progression.dll"),
+        (Join-Path $PSScriptRoot "dist/xp-progression.dll")
     )
 
     $dllPath = $dllCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 
     if ($dllPath) {
         Copy-Item -Path $dllPath -Destination $modsDir -Force
-        Write-Host " -> Copiado PyroProgression.dll ($dllPath) para $modsDir" -ForegroundColor Green
+        Write-Host " -> Copiado xp-progression.dll ($dllPath) para $modsDir" -ForegroundColor Green
     } else {
-        Write-Warning "PyroProgression.dll não encontrado nos caminhos candidatos."
+        Write-Warning "xp-progression.dll não encontrado nos caminhos candidatos."
     }
 }
 

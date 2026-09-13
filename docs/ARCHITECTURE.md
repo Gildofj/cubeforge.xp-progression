@@ -1,6 +1,6 @@
 # Architecture & System Design
 
-This document details the software architecture, execution lifecycle, memory manipulation techniques, and subsystem interactions in **PyroProgression**.
+This document details the software architecture, execution lifecycle, memory manipulation techniques, and subsystem interactions in **xp-progression**.
 
 ---
 
@@ -16,8 +16,8 @@ This document details the software architecture, execution lifecycle, memory man
 
 ## Overview
 
-PyroProgression is a dynamic link library (`PyroProgression.dll`) built for the x86_64 Windows release of **Cube World** (Steam edition). It interacts directly with the running game process (`cubeworld.exe`) via:
-- **CWSDK (Cube World Software Development Kit)**: An abstraction layer providing type definitions, game object layouts (`cube::Game`, `cube::Creature`, `cube::Item`, `plasma::Node`), and hook definitions (`GenericMod`).
+xp-progression is a dynamic link library (`xp-progression.dll`) built for the x86_64 Windows release of **Cube World** (Steam edition). It interacts directly with the running game process (`cubeworld.exe`) via:
+- **CWSDK (CubeForge SDK)**: An abstraction layer providing type definitions, game object layouts (`cube::Game`, `cube::Creature`, `cube::Item`, `plasma::Node`), and hook definitions (`GenericMod`).
 - **In-Process Binary Patching & Detours**: Overwriting game bytecode at specific offsets with `jmp` instructions pointing to naked assembly trampolines.
 - **Steamworks P2P API**: Intercepting and broadcasting custom P2P packets across players for multiplayer XP synchronization.
 
@@ -30,17 +30,17 @@ graph TD
         EngineStat["Stat Calculation Pipeline"]
     end
 
-    subgraph ModLoader ["CubeModLoader.fip"]
+    subgraph ModLoader ["CubeForgeLoader.fip"]
         Loader["DLL Injector / Mod Dispatcher"]
     end
 
-    subgraph PyroProgression ["PyroProgression.dll"]
+    subgraph XPProgression ["xp-progression.dll"]
         MakeMod["EXPORT MakeMod()"]
         ModClass["class Mod : GenericMod"]
         
         subgraph Subsystems ["Core Subsystems"]
             Hooks["Memory Hooks & Detours\n(XP, LevelDisplay, GearScaling, GoldDrops, RegionText)"]
-            Utility["Math & Scaling Utility\n(Chebyshev Distance, PyroRand, GetItemLevel)"]
+            Utility["Math & Scaling Utility\n(Chebyshev Distance, ProgressionRand, GetItemLevel)"]
             NetSync["P2P Network Handler\n(SteamNetworking Channel 2)"]
         end
     end
@@ -60,18 +60,18 @@ graph TD
 
 ## Component Architecture
 
-PyroProgression is structured into several modular headers and translation units:
+xp-progression is structured into several modular headers and translation units:
 
 | Component | File(s) | Responsibility |
 |---|---|---|
-| **Core Entrypoint** | [`main.cpp`](file:///d:/Projects/PyroProgression/main.cpp), [`main.h`](file:///d:/Projects/PyroProgression/main.h) | Implements `Mod` class inheriting `GenericMod`, lifecycle event handlers (`OnGameTick`, `OnCreatureDeath`, `OnChat`, `OnLevelUp`, stat overrides), and macro definitions. |
-| **Math & Scaling Engine** | [`src/utility.h`](file:///d:/Projects/PyroProgression/src/utility.h), [`src/utility.cpp`](file:///d:/Projects/PyroProgression/src/utility.cpp) | Region distance calculations (Chebyshev metric), level determination for creatures/items, and pseudo-random level variation (`PyroRand`). |
-| **XP Hook Subsystem** | [`src/XPOverwrite.h`](file:///d:/Projects/PyroProgression/src/XPOverwrite.h) | Detours original XP requirement logic (`0x5FA80`) and injects exponential curve `50 * (1 + level^1.3)`. |
-| **Gear Scaling Subsystem** | [`src/GearScalingOverWrite.h`](file:///d:/Projects/PyroProgression/src/GearScalingOverWrite.h) | Hooks weapon/armor scaling (`0x109C50`), haste (`0x10A490`), health regen (`0x109F30`), and critical strike chance (`0x1090F0`). |
-| **Level Display Subsystem** | [`src/LevelDisplayOverwrite.h`](file:///d:/Projects/PyroProgression/src/LevelDisplayOverwrite.h) | Hooks UI rendering to format and display creature and item level tags (`LV. 5`, `LV. 1.20K`, `LV. 3.50M`). |
-| **Gold Drop Subsystem** | [`src/GoldDropOverWrite.h`](file:///d:/Projects/PyroProgression/src/GoldDropOverWrite.h) | Hooks creature gold drop generation (`0x2A752C`) to scale coin yield with creature level. |
-| **Region HUD Subsystem** | [`src/RegionTextDrawOverwrite.h`](file:///d:/Projects/PyroProgression/src/RegionTextDrawOverwrite.h) | Hooks top-right region banner rendering (`0xABA58`) to include regional level brackets. |
-| **Memory Utilities** | [`src/memory/memory_helper.h`](file:///d:/Projects/PyroProgression/src/memory/memory_helper.h) | Provides low-level Win32 memory scanning (`FindPattern`), memory protection alterations (`VirtualProtect`), and string replacement in image space. |
+| **Core Entrypoint** | [`src/main.cpp`](file:///d:/Projects/cubeforge.xp-progression/src/main.cpp), [`src/main.h`](file:///d:/Projects/cubeforge.xp-progression/src/main.h) | Implements `Mod` class inheriting `GenericMod`, lifecycle event handlers (`OnGameTick`, `OnCreatureDeath`, `OnChat`, `OnLevelUp`, stat overrides), and macro definitions. |
+| **Math & Scaling Engine** | [`src/utility.h`](file:///d:/Projects/cubeforge.xp-progression/src/utility.h), [`src/utility.cpp`](file:///d:/Projects/cubeforge.xp-progression/src/utility.cpp) | Region distance calculations (Chebyshev metric), level determination for creatures/items, and pseudo-random level variation (`ProgressionRand`). |
+| **XP Hook Subsystem** | [`src/XPOverwrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/XPOverwrite.h) | Detours original XP requirement logic (`0x5FA80`) and injects exponential curve `50 * (1 + level^1.3)`. |
+| **Gear Scaling Subsystem** | [`src/GearScalingOverWrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/GearScalingOverWrite.h) | Hooks weapon/armor scaling (`0x109C50`), haste (`0x10A490`), health regen (`0x109F30`), and critical strike chance (`0x1090F0`). |
+| **Level Display Subsystem** | [`src/LevelDisplayOverwrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/LevelDisplayOverwrite.h) | Hooks UI rendering to format and display creature and item level tags (`LV. 5`, `LV. 1.20K`, `LV. 3.50M`). |
+| **Gold Drop Subsystem** | [`src/GoldDropOverWrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/GoldDropOverWrite.h) | Hooks creature gold drop generation (`0x2A752C`) to scale coin yield with creature level. |
+| **Region HUD Subsystem** | [`src/RegionTextDrawOverwrite.h`](file:///d:/Projects/cubeforge.xp-progression/src/RegionTextDrawOverwrite.h) | Hooks top-right region banner rendering (`0xABA58`) to include regional level brackets. |
+| **Memory Utilities** | [`src/memory/memory_helper.h`](file:///d:/Projects/cubeforge.xp-progression/src/memory/memory_helper.h) | Provides low-level Win32 memory scanning (`FindPattern`), memory protection alterations (`VirtualProtect`), and string replacement in image space. |
 
 ---
 
@@ -80,8 +80,8 @@ PyroProgression is structured into several modular headers and translation units
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Loader as CubeModLoader
-    participant Mod as PyroProgression (Mod)
+    participant Loader as CubeForgeLoader
+    participant Mod as xp-progression (Mod)
     participant Game as Cube World Game Process
     participant Net as Steam P2P Network
 
@@ -118,7 +118,7 @@ sequenceDiagram
 ```
 
 ### 1. Game Initialization Phase
-When CubeModLoader initializes the DLL via `MakeMod()`:
+When CubeForgeLoader initializes the DLL via `MakeMod()`:
 1. `Initialize()` registers all memory detours using `WriteFarJMP`.
 2. Baseline stat multipliers for player and creature scaling maps are populated.
 
@@ -159,13 +159,13 @@ Because x86_64 function calls use 64-bit registers and strict stack alignment ru
 
 ## Multiplayer & Steam P2P Synchronization
 
-PyroProgression supports seamless multiplayer progression without requiring a dedicated server:
+xp-progression supports seamless multiplayer progression without requiring a dedicated server:
 
 1. **Host-Authoritative Kill Detection**: Only the host executes `OnCreatureDeath()`.
 2. **XP Calculation & Distribution**:
    $$\text{XP}_{\text{shared}} = \left\lfloor \frac{\text{XP}_{\text{total}}}{N_{\text{connections}}} \right\rfloor$$
 3. **Steam P2P Transmission**:
-   - Packets are serialized using a lightweight binary writer ([`BytesIO`](file:///d:/Projects/PyroProgression/main.cpp#L305-L315)).
+   - Packets are serialized using a lightweight binary writer ([`BytesIO`](file:///d:/Projects/cubeforge.sdk/common/BytesIO.h)).
    - Data structure: `[u32 PacketID = 0x01] [u32 XPAmount]`.
    - Sent reliably (`k_EP2PSendReliable`) on P2P virtual channel `2`.
 4. **Client Reception**:
@@ -177,23 +177,39 @@ PyroProgression supports seamless multiplayer progression without requiring a de
 ## Directory Structure
 
 ```text
-PyroProgression/
-├── CMakeLists.txt              # CMake build definition
-├── CMakeSettings.json          # Visual Studio / CMake workspace settings
-├── GenerateProjectCMake.py     # Python script to regenerate CMake configuration
-├── main.h                      # Common includes, ASM macros, and register definitions
-├── main.cpp                    # Main Mod class, hooks lifecycle, event handlers
-├── CWSDK/                      # Cube World SDK submodule (structures & offsets)
+cubeforge.xp-progression/
+├── CMakeLists.txt              # CMake root build definition
+├── CMakePresets.json           # Unified CMake presets for MSVC & Clang
+├── build.ps1                   # Automation build script for Windows/macOS
+├── build.bat                   # Batch wrapper for build.ps1
 ├── src/
+│   ├── main.h                  # Common includes, ASM macros, and register definitions
+│   ├── main.cpp                # Main Mod class, hooks lifecycle, event handlers
+│   ├── utility.h               # Utility prototypes & macro constants
+│   ├── utility.cpp             # Distance, LCG PRNG, and level calculation implementations
+│   ├── trampolines.asm         # MASM x64 naked assembly trampolines
 │   ├── GearScalingOverWrite.h  # Gear stats & logarithmic scaling formulas
 │   ├── GoldDropOverWrite.h     # Creature gold drop detours
 │   ├── LevelDisplayOverwrite.h # Nameplate & item tooltip level formatter
 │   ├── RegionTextDrawOverwrite.h# HUD region level indicator hook
 │   ├── XPOverwrite.h           # XP curve overwrite hook
-│   ├── utility.h               # Utility prototypes & macro constants
-│   ├── utility.cpp             # Distance, LCG PRNG, and level calculation implementations
+│   ├── core/                   # Constants, math utilities, and stat types
+│   │   ├── Constants.h
+│   │   ├── MathUtils.h
+│   │   └── StatTypes.h
+│   ├── features/               # Domain-specific gameplay subsystems
+│   │   ├── drops/
+│   │   ├── hud/
+│   │   ├── network/
+│   │   ├── progression/
+│   │   └── scaling/
 │   └── memory/
 │       └── memory_helper.h     # Pattern scanning and memory protection utilities
+├── tests/                      # Automated unit testing suite
+│   ├── CMakeLists.txt
+│   ├── main.cpp
+│   ├── test_framework.h
+│   └── unit/
 └── docs/                       # Project documentation suite
     ├── ARCHITECTURE.md         # System architecture and technical design
     ├── FORMULAS.md             # Mathematical models and scaling equations

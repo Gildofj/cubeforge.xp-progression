@@ -3,7 +3,7 @@
 #include <cwchar>
 #include <cstdio>
 
-namespace pyro {
+namespace xp_progression {
 
     std::wstring HUDFormatter::FormatLevelPrefix(double level) {
         wchar_t buffer[64];
@@ -32,4 +32,4 @@ namespace pyro {
         return std::wstring(buffer);
     }
 
-} // namespace pyro
+} // namespace xp_progression

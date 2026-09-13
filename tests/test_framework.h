@@ -1,5 +1,5 @@
-#ifndef PYRO_TEST_FRAMEWORK_H
-#define PYRO_TEST_FRAMEWORK_H
+#ifndef XP_PROGRESSION_TEST_FRAMEWORK_H
+#define XP_PROGRESSION_TEST_FRAMEWORK_H
 
 #include <iostream>
 #include <vector>
@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <windows.h>
 
-namespace pyro::testing {
+namespace xp_progression::testing {
 
     struct TestFailure {
         std::string expression;
@@ -52,7 +52,7 @@ namespace pyro::testing {
             m_failedTests = 0;
 
             std::cout << "\n=======================================================\n";
-            std::cout << "       PyroProgression Test Suite Execution Runner     \n";
+            std::cout << "       XP Progression Test Suite Execution Runner     \n";
             std::cout << "=======================================================\n" << std::flush;
 
             auto globalStart = std::chrono::high_resolution_clock::now();
@@ -123,24 +123,24 @@ namespace pyro::testing {
         }
     };
 
-} // namespace pyro::testing
+} // namespace xp_progression::testing
 
 #define TEST_FUNC(suite_name, test_name) void test_##suite_name##_##test_name()
 
 #define REGISTER_TEST(suite_name, test_name) \
-    ::pyro::testing::TestRunner::Instance().RegisterTest(#suite_name, #test_name, test_##suite_name##_##test_name)
+    ::xp_progression::testing::TestRunner::Instance().RegisterTest(#suite_name, #test_name, test_##suite_name##_##test_name)
 
 #define ASSERT_TRUE(condition) \
     do { \
         if (!(condition)) { \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#condition, __FILE__, __LINE__); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#condition, __FILE__, __LINE__); \
         } \
     } while(0)
 
 #define ASSERT_FALSE(condition) \
     do { \
         if (condition) { \
-            ::pyro::testing::TestRunner::Instance().AddFailure("!(" #condition ")", __FILE__, __LINE__); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure("!(" #condition ")", __FILE__, __LINE__); \
         } \
     } while(0)
 
@@ -151,7 +151,7 @@ namespace pyro::testing {
         if (!(_act == _exp)) { \
             std::stringstream _ss; \
             _ss << "Expected: [" << _exp << "] but got: [" << _act << "]"; \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -162,7 +162,7 @@ namespace pyro::testing {
         if (_act == _exp) { \
             std::stringstream _ss; \
             _ss << "Expected values to differ, but both were: [" << _act << "]"; \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#actual " != " #expected, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#actual " != " #expected, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -171,7 +171,7 @@ namespace pyro::testing {
         if (!((val1) < (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not < [" << (val2) << "]"; \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#val1 " < " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#val1 " < " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -180,7 +180,7 @@ namespace pyro::testing {
         if (!((val1) <= (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not <= [" << (val2) << "]"; \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#val1 " <= " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#val1 " <= " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -189,7 +189,7 @@ namespace pyro::testing {
         if (!((val1) > (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not > [" << (val2) << "]"; \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#val1 " > " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#val1 " > " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -198,7 +198,7 @@ namespace pyro::testing {
         if (!((val1) >= (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not >= [" << (val2) << "]"; \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#val1 " >= " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#val1 " >= " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -210,7 +210,7 @@ namespace pyro::testing {
         if (std::abs(_act - _exp) > _eps) { \
             std::stringstream _ss; \
             _ss << "Expected [" << _exp << "] +/- " << _eps << " but got [" << _act << "] (diff: " << std::abs(_act - _exp) << ")"; \
-            ::pyro::testing::TestRunner::Instance().AddFailure("|" #actual " - " #expected "| <= " #epsilon, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure("|" #actual " - " #expected "| <= " #epsilon, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -221,8 +221,8 @@ namespace pyro::testing {
         if (_act != _exp) { \
             std::stringstream _ss; \
             _ss << "Expected: \"" << _exp << "\" but got: \"" << _act << "\""; \
-            ::pyro::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
+            ::xp_progression::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
-#endif // PYRO_TEST_FRAMEWORK_H
+#endif // XP_PROGRESSION_TEST_FRAMEWORK_H
