@@ -155,7 +155,7 @@ public:
         {
             plasma::Node* node = game->gui.levelinfo_node;
             node->SetVisibility(true);
-            node->Translate(game->width / 2, game->height, -200, -100);
+            node->Translate(static_cast<float>(game->width / 2), static_cast<float>(game->height), -200.0f, -100.0f);
         }
 
         // Handle levelups
