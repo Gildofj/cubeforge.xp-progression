@@ -24,16 +24,16 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-$isWindows = $true
+$runningOnWindows = $true
 if ($PSVersionTable.PSVersion.Major -ge 6) {
-    $isWindows = $IsWindows
+    $runningOnWindows = $IsWindows
 }
 
 # Map to the unified CMake Preset names based on Platform
 $presetName = ""
 $testPresetName = ""
 
-if ($isWindows) {
+if ($runningOnWindows) {
     if ($env:VSCMD_ARG_TGT_ARCH -ne "x64" -or -not (Get-Command cl.exe -ErrorAction SilentlyContinue)) {
         $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $vcvars = $null

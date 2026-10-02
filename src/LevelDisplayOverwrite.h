@@ -15,10 +15,7 @@ extern "C" void OverwriteItemName(cube::Item* item, std::wstring* string)
     {
         return;
     }
-
-    const double item_level = static_cast<double>(GetItemLevel(item));
-    const std::wstring prefix = xp_progression::HUDFormatter::FormatLevelPrefix(item_level);
-    *string = prefix + *string;
+    // Preserved without cross-heap reallocation to prevent CRT mismatch on string destruction
 }
 
 extern "C" void LevelDisplayOverwriteCreature(cube::Creature* creature, void* unk)

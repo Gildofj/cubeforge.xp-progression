@@ -46,21 +46,9 @@ namespace xp_progression {
         if (!game || !creature) return;
 
         FloatRGBA purple(kColorPurpleR, kColorPurpleG, kColorPurpleB, kColorPurpleA);
-        cube::TextFX xpText = cube::TextFX();
 
         // Play levelup sound effect
         game->PlaySoundEffect(cube::Game::SoundEffect::sound_level_up);
-
-        // Spawn visual TextFX
-        xpText.position = creature->entity_data.position;
-        xpText.animation_length = kTextFXLevelUpAnimLength;
-        xpText.distance_to_fall = kTextFXLevelUpDistance;
-        xpText.color = purple;
-        xpText.size = kTextFXLevelUpSize;
-        xpText.offset_2d = FloatVector2(0, 0);
-        xpText.text = L"LEVEL UP!\n";
-        xpText.field_60 = 0;
-        game->textfx_list.push_back(xpText);
 
         // Print levelup message to chat
         game->PrintMessage(L"LEVEL UP!\n", &purple);

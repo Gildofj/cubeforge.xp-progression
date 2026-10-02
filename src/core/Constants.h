@@ -11,6 +11,8 @@ namespace xp_progression {
     // Steam P2P Network Channels & Packet IDs
     constexpr int kP2PProgressionChannel = 2;
     constexpr uint32_t kPacketIdXPSync = 0x01;
+    constexpr uint32_t kPacketIdHostBaseRegionSync = 0x02;
+    constexpr uint32_t kPacketIdRequestHostBaseRegion = 0x03;
 
     // Default combat text settings
     constexpr int32_t kTextFXLevelUpAnimLength = 3000;

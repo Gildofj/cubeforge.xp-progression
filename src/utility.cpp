@@ -1,25 +1,84 @@
 #include "utility.h"
+#include "features/network/NetworkSync.h"
 
-int GetRegionDistance(IntVector2 region)
+IntVector2 GetWorldBaseRegion()
 {
     cube::Game* game = cube::GetGame();
     if (!game)
     {
-        return 0;
+        return IntVector2(0, 0);
     }
 
     cube::Creature* player = game->GetPlayer();
     if (!player)
     {
-        return 0;
+        return IntVector2(0, 0);
     }
 
-    IntVector2 base_region = player->entity_data.equipment.unk_item.region;
-    if (player->entity_data.equipment.unk_item.modifier == 0 || 
-        (base_region == IntVector2(0, 0) && player->entity_data.current_region != IntVector2(0, 0)))
+    // 1. If we are the Host (Singleplayer or Multiplayer Host)
+    if (xp_progression::NetworkSync::IsHost(game))
     {
-        base_region = player->entity_data.current_region;
+        IntVector2 base_region = player->entity_data.equipment.unk_item.region;
+        if (player->entity_data.equipment.unk_item.modifier == 0 || 
+            (base_region == IntVector2(0, 0) && player->entity_data.current_region != IntVector2(0, 0)))
+        {
+            base_region = player->entity_data.current_region;
+        }
+        return base_region;
     }
+
+    // 2. We are a Client joining a Host.
+    // The Host MUST ALWAYS have highest priority in multiplayer!
+
+    // Priority 1: Synced Host Base Region from Steam P2P Network
+    const auto syncedRegion = xp_progression::NetworkSync::GetSyncedHostBaseRegion();
+    if (syncedRegion.has_value())
+    {
+        return *syncedRegion;
+    }
+
+    // Priority 2: Host Creature in the loaded world
+    if (game->world && game->client.host_steam_id.IsValid())
+    {
+        const uint64_t hostSteamID = game->client.host_steam_id.ConvertToUint64();
+        for (cube::Creature* creature : game->world->creatures)
+        {
+            if (!creature) continue;
+            if (creature->entity_data.hostility_type == cube::Creature::EntityBehaviour::Player &&
+                static_cast<uint64_t>(creature->entity_data.steam_id) == hostSteamID)
+            {
+                const IntVector2 host_storage_region = creature->entity_data.equipment.unk_item.region;
+                if (creature->entity_data.equipment.unk_item.modifier != 0 && host_storage_region != IntVector2(0, 0))
+                {
+                    return host_storage_region;
+                }
+                if (creature->entity_data.current_region != IntVector2(0, 0))
+                {
+                    return creature->entity_data.current_region;
+                }
+            }
+        }
+    }
+
+    // Priority 3: Session initial spawn region in the Host's world
+    const auto sessionSpawn = xp_progression::NetworkSync::GetSessionSpawnRegion();
+    if (sessionSpawn.has_value())
+    {
+        return *sessionSpawn;
+    }
+
+    // Priority 4: Current player region in this session
+    if (player->entity_data.current_region != IntVector2(0, 0))
+    {
+        return player->entity_data.current_region;
+    }
+
+    return IntVector2(0, 0);
+}
+
+int GetRegionDistance(IntVector2 region)
+{
+    const IntVector2 base_region = GetWorldBaseRegion();
     return xp_progression::CalculateChebyshevDistance(base_region, region);
 }
 

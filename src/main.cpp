@@ -26,8 +26,6 @@
  */
 class Mod : public GenericMod {
 private:
-    std::deque<cube::TextFX> m_FXList;
-
     void GainXP(cube::Game* game, int xp)
     {
         if (!game || xp <= 0) return;
@@ -38,25 +36,6 @@ private:
         wchar_t buffer[64];
         swprintf_s(buffer, sizeof(buffer)/sizeof(wchar_t), L"You gain %d xp.\n", xp);
         game->PrintMessage(buffer, &purple);
-
-        cube::TextFX xpText = cube::TextFX();
-        xpText.position = player->entity_data.position + LongVector3(
-            std::rand() % (cube::DOTS_PER_BLOCK * 50),
-            std::rand() % (cube::DOTS_PER_BLOCK * 50),
-            std::rand() % (cube::DOTS_PER_BLOCK * 50)
-        );
-        xpText.animation_length = xp_progression::kTextFXXPGainAnimLength;
-        xpText.distance_to_fall = xp_progression::kTextFXXPGainDistance;
-        xpText.color = purple;
-        xpText.size = xp_progression::kTextFXXPGainSize;
-        xpText.offset_2d = FloatVector2(-50.0f, -100.0f);
-        xpText.text = std::wstring(L"+") + std::to_wstring(xp) + std::wstring(L" XP");
-        xpText.field_60 = 0;
-
-        for (int i = 0; i < 4; ++i)
-        {
-            m_FXList.push_back(xpText);
-        }
 
         player->entity_data.XP += xp;
     }
@@ -82,10 +61,18 @@ public:
                 return 1;
             }
 
+            if (!xp_progression::NetworkSync::IsHost(game))
+            {
+                game->PrintMessage(L"[Error] Only the host can recenter the world progression origin.\n", 255, 0, 0);
+                return 1;
+            }
+
             // Set new center region
             player->entity_data.equipment.unk_item.region = player->entity_data.current_region;
+            player->entity_data.equipment.unk_item.modifier = 1;
 
-            // Reset HP of all creatures
+            xp_progression::NetworkSync::BroadcastHostBaseRegion(game, player->entity_data.current_region);
+
             if (game->world)
             {
                 for (cube::Creature* creature : game->world->creatures)
@@ -111,12 +98,7 @@ public:
     }
 
     virtual void OnGameUpdate(cube::Game* game) override {
-        if (!game) return;
-        if (!m_FXList.empty())
-        {
-            game->textfx_list.push_back(m_FXList.front());
-            m_FXList.pop_front();
-        }
+        (void)game;
     }
 
     /* Function hook that gets called every game tick.
@@ -167,16 +149,20 @@ public:
             xp_progression::ProgressionSystem::ExecuteLevelUp(game, player);
         }
 
-        // Set starting region if not set
-        cube::Item* storage = &entity_data->equipment.unk_item;
-        if (storage->modifier == 0)
+        // Set starting region if not set (Host/Singleplayer only)
+        if (xp_progression::NetworkSync::IsHost(game))
         {
-            storage->modifier = 1;
-            storage->region = entity_data->current_region;
+            cube::Item* storage = &entity_data->equipment.unk_item;
+            if (storage->modifier == 0)
+            {
+                storage->modifier = 1;
+                storage->region = entity_data->current_region;
+            }
         }
 
-        // Poll Steam P2P packets
+        // Poll Steam P2P packets and update network state
         xp_progression::NetworkSync::PollIncomingPackets(game);
+        xp_progression::NetworkSync::UpdateNetwork(game);
     }
 
     // Called for the host only

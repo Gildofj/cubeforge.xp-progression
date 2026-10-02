@@ -8,6 +8,7 @@
 #define LEVELS_PER_REGION xp_progression::kLevelsPerRegion
 #define LEVEL_EQUIPMENT_CAP xp_progression::kLevelEquipmentCap
 
+[[nodiscard]] IntVector2 GetWorldBaseRegion();
 [[nodiscard]] int GetRegionDistance(IntVector2 region);
 [[nodiscard]] int GetItemLevel(cube::Item* item);
 [[nodiscard]] int GetCreatureLevel(cube::Creature* creature);

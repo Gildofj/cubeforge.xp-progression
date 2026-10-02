@@ -17,8 +17,8 @@ extern "C" void RegionTextDrawOverwrite(plasma::Node* node, std::wstring* string
     const int distance = GetRegionDistance(player->entity_data.current_region);
     const std::wstring prefix = xp_progression::HUDFormatter::FormatRegionBracket(distance);
 
-    *string = prefix + *string;
-    node->SetText(string);
+    std::wstring fullString = prefix + *string;
+    node->SetText(&fullString);
 }
 
 GETTER_VAR(void*, ASM_RegionTextDrawOverwrite_jmpback);
